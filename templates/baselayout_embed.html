@@ -6,7 +6,7 @@
 {% get_current_language as LANGUAGE_CODE %}
 <html lang="{{LANGUAGE_CODE|default:'en'}}">
   <head>
-    <title>{% blocktrans %}Finnish Signbank{% endblocktrans %}{% block bootstrap3_title %}{% endblock %}</title>
+    <title>ISOFSL Signbank{% block bootstrap3_title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <link rel="stylesheet" media="screen" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
@@ -20,13 +20,6 @@
         <div class="container">
             <div id="leftcontentborder"></div>
             <div id="rightcontentborder"></div>
-            <header id="header">{# Translators: Site title #}
-                <h1><a href="{% url 'root_page' %}">{% blocktrans %}Finnish Signbank{% endblocktrans %}</a></h1>
-                <div id="langbar">{% include "langbar.html" %}</div>
-            </header>
-            <div id="menu">
-                {% include "menu.html" %}
-            </div>
             {% bootstrap_messages %}
             <main role="main">
             {% block content %}{% blocktrans %}(No content){% endblocktrans %}{% endblock %}
@@ -36,28 +29,6 @@
     <footer id="footer">
        <div id="footercontainer" class="container">
             <div class="footerbg">
-                <div class="logoholder">
-                   <a href="https://www.jyu.fi" rel="external">
-                     <img id="logojy" src="{% static 'img/jyu-logo_100-compressor.png' %}" class="logofooter" alt="{% blocktrans %}University of Jyväskylä{% endblocktrans %}">
-                   </a>
-                   <a href="http://www.kuurojenliitto.fi/" rel="external">
-                     <img id="logokl"
-                       {% if LANGUAGE_CODE == 'fi' %}src="{% static 'img/kl-logo_fin_100-compressor.png' %}"
-                       {% elif LANGUAGE_CODE == 'sv-se' %}src="{% static 'img/kl-logo_sve_100-compressor.png' %}"
-                       {% else %}src="{% static 'img/kl-logo_eng_100-compressor.png' %}"
-                       {% endif %}
-                       class="logofooter" alt="{% blocktrans %}Finnish Association of the Deaf{% endblocktrans %}">
-                   </a>
-                   <a href="https://www.kielipankki.fi/" rel="external">
-                     <img id="logokielipankki" src="{% static 'img/kielipankki_logo_cropped-compressor.png' %}" class="logofooter" alt="{% blocktrans %}The Language Bank of Finland{% endblocktrans %}">
-                   </a>
-                   <a href="https://www.csc.fi" rel="external">
-                     <img id="logocsc" src="{% static 'img/csc_2012_logo-compressor.png' %}" class="logofooter" alt="{% blocktrans %}CSC - IT center for science{% endblocktrans %}">
-                   </a>
-                </div>
-                <div id="license">
-
-                </div>
             </div>
         </div>
     </footer>
@@ -65,7 +36,7 @@
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
 
 <script>
-$('a.close').on('click', function(event){
+$('a.close').click(function(event){
     event.preventDefault();
     event.stopPropagation();
     var parent = $(this).parent();
@@ -79,7 +50,7 @@ $('a.close').on('click', function(event){
         }
     });
 });
-$('a#notifications_mark_all_read').on('click', function(event){
+$('a#notifications_mark_all_read').click(function(event){
     event.preventDefault();
     event.stopPropagation();
     $.get(event.currentTarget.href).done(function () {

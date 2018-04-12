@@ -9,6 +9,8 @@ from . import publicviews
 from . import update
 from . import delete
 from . import views
+from . import tagviews
+from .publicviews import GlossAutoCompleteView
 
 urlpatterns = [
     # Public views for dictionary
@@ -66,6 +68,20 @@ urlpatterns = [
     url(r'^gloss/(?P<pk>\d+)', permission_required('dictionary.search_gloss')
     (adminviews.GlossDetailView.as_view()), name='admin_gloss_view'),
 
+<<<<<<< HEAD
+=======
+    # Public views for dictionary
+    url(r'^public/gloss/$', publicviews.GlossListPublicView.as_view(), name='public_gloss_list'),
+    url(r'^public/gloss/(?P<pk>\d+)', publicviews.GlossDetailPublicView.as_view(), name='public_gloss_view'),
+    # ISOF test:
+    url(r'^public/glosstags/$', publicviews.GlossListPublicTagsView.as_view(), name='public_gloss_list'),
+    url(r'^public/glosstags/(?P<pk>\d+)', publicviews.GlossDetailPublicView.as_view(), name='public_gloss_view'),
+    url(
+        r'^gloss-autocomplete/$',
+        GlossAutoCompleteView.as_view(),
+        name='gloss_autocomplete',
+    ),
+>>>>>>> a7f5080c1e2928523270bebacaaa92ac69292361
     # A view for the developer to try out some things
     # url(r'^try/$', views.try_code),
 ]

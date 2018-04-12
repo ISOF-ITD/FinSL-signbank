@@ -73,4 +73,3 @@ def try_code(request):
                 english_name=english_name, field=key, machine_value=machine_value).save()
     return HttpResponse('OK', status=200)
 
-

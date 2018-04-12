@@ -43,7 +43,11 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
+<<<<<<< HEAD
             'filename': os.path.join(PROJECT_DIR, 'debug.log'),
+=======
+            'filename': 'C://Users//localperla331//PycharmProjects//log//signbankdebug.log',
+>>>>>>> a7f5080c1e2928523270bebacaaa92ac69292361
         },
     },
     'loggers': {

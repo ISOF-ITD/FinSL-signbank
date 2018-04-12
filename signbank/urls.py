@@ -37,8 +37,9 @@ urlpatterns = [
         name='sign_search'),
 
     # Registration urls for login, logout, registration, activation etc.
+    # C:\Users\localperla331\AppData\Local\Programs\Python\Python36\Lib\site-packages\registration\backends\hmac
     url(r'^accounts/register/$', RegistrationView.as_view(form_class=CustomUserForm), name='registration_register',),
-    url(r'^accounts/', include('registration.backends.hmac.urls')),
+    url(r'^accounts/', include('registration.backends.hmac.urls'), name='registration_site',),
 
     # Django-contrib-comments urls
     url(r'^comments/', include('django_comments.urls')),
@@ -61,7 +62,7 @@ urlpatterns = [
     # Admin urls
     url(r'^admin/doc/',
         include('django.contrib.admindocs.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', include(admin.site.urls), ),
 
     # Summernote urls, Summernote is the WYSIWYG editor currently used in Signbank
     url(r'^summernote/', include('django_summernote.urls')),
