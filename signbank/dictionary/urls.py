@@ -68,8 +68,6 @@ urlpatterns = [
     url(r'^gloss/(?P<pk>\d+)', permission_required('dictionary.search_gloss')
     (adminviews.GlossDetailView.as_view()), name='admin_gloss_view'),
 
-<<<<<<< HEAD
-=======
     # Public views for dictionary
     url(r'^public/gloss/$', publicviews.GlossListPublicView.as_view(), name='public_gloss_list'),
     url(r'^public/gloss/(?P<pk>\d+)', publicviews.GlossDetailPublicView.as_view(), name='public_gloss_view'),
@@ -81,7 +79,6 @@ urlpatterns = [
         GlossAutoCompleteView.as_view(),
         name='gloss_autocomplete',
     ),
->>>>>>> a7f5080c1e2928523270bebacaaa92ac69292361
     # A view for the developer to try out some things
     # url(r'^try/$', views.try_code),
 ]
