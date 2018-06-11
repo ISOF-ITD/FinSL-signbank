@@ -11,7 +11,9 @@ DEBUG = True
 
 # A list of directories where Django looks for translation files.
 LOCALE_PATHS = (
-    '/home/heilniem/signbank-fi/locale',
+    # '/home/heilniem/signbank-fi/locale',
+    'C://utv//testPyCharmCE//FinSLsignbank//locale',
+    # 'C://Users//localperla331//PycharmProjects//FinSLsignbank//locale',
 )
 
 # The absolute path to the directory where collectstatic will collect static files for deployment.
@@ -24,7 +26,7 @@ STATICFILES_DIRS = (
 )
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
-MEDIA_ROOT = '/home/heilniem/signbank-fi/media/'
+MEDIA_ROOT = 'C:/data/teckenvideo'
 # URL that handles the media served from MEDIA_ROOT, used for managing stored files.
 # It must end in a slash if set to a non-empty value.
 MEDIA_URL = '/media/'
@@ -46,7 +48,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/home/heilniem/signbank-fi/debug.log',
+            'filename': 'C://Users//localperla331//PycharmProjects//log//signbankdebug.log',
         },
     },
     'loggers': {
