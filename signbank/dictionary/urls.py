@@ -70,7 +70,14 @@ urlpatterns = [
 
     # Public views for dictionary
     url(r'^public/gloss/$', publicviews.GlossListPublicView.as_view(), name='public_gloss_list'),
+    url(r'^public/translation/$', publicviews.TranslationListPublicView.as_view(), name='public_translation_list'),
+    url(
+        r'^gloss-autocomplete/$',
+        publicviews.TranslationAutoCompleteView.as_view(),
+        name='gloss_autocomplete',
+    ),
     url(r'^public/gloss/(?P<pk>\d+)', publicviews.GlossDetailPublicView.as_view(), name='public_gloss_view'),
+    url(r'^public/translation/(?P<pk>\d+)', publicviews.TranslationDetailPublicView.as_view(), name='public_gloss_translation_view'),
 
     # A view for the developer to try out some things
     # url(r'^try/$', views.try_code),

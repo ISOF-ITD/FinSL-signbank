@@ -348,3 +348,15 @@ td .tag {
 .notifications-menu-close {
     margin-right: 10px;
 }
+/*Hide video*/
+/*https://stackoverflow.com/questions/4528085/toggle-show-hide-div-with-button*/
+.hide-video {
+    display:none;
+}
+/*For compact format*/
+.row-m-b-small {
+  margin-bottom: 5px;
+}
+.row-p-small {
+  padding: 4px 4px;
+}
