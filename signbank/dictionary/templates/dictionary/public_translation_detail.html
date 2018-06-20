@@ -1,4 +1,4 @@
-{% extends "baselayout.html" %}
+{% extends "baselayout_embed.html" %}
 {% load i18n %}
 {% load comments %}
 {% load tagging_tags %}
@@ -6,18 +6,18 @@
 <div class="container">
 <div class="row">
     <div class="col-md-10 col-md-offset-1">
-        <div class="col-md-12">
-            <!--<h4>{% blocktrans %}Translation equivalents{% endblocktrans %}</h4>-->
+        <div class="col-md-6">
+            <h4>{% blocktrans %}Translation equivalents{% endblocktrans %}</h4>
             {% for translation_language, translations in translation_languages_and_translations %}
-                <p><strong>{{ translation_language.name }}:</strong></p>
-                <p id='keywords_{{ translation_language.language_code_2char }}'>
-                    {{ translations|default:_("<em>No translations.</em>") }}</p>
+                <!--<p><strong>{{ translation_language.name }}:</strong></p>-->
+                <!--<p id='keywords_{{ translation_language.language_code_2char }}'>-->
+                    <h2>{{ translations|default:_("<em>No translations.</em>") }}</h2></p>
             {% endfor %}
         </div>
-        <div class="col-md-6">
+        <div class="col-md-12">
             <h2><a href="{{gloss.get_public_absolute_url}}">{{gloss}}</a>
-            <span class="dataset-{{gloss.dataset.id}}-color label label-default">{{gloss.dataset}}</span>
-            {% if gloss.idgloss_en %}/ {{gloss.idgloss_en}}{% endif %}</h2>
+            <!--<span class="dataset-{{gloss.dataset.id}}-color label label-default">{{gloss.dataset}}</span>-->
+            <!--<h2>{% if gloss.idgloss_en %}/ {{gloss.idgloss_en}}{% endif %}</h2>-->
         </div>
         <div class="col-md-6">
             <h4>{% blocktrans %}Notes{% endblocktrans %}</h4>
@@ -33,7 +33,7 @@
             <hr>
             <h3>{{glossvideo.title}}</h3>
             <div class="embed-responsive embed-responsive-16by9">
-                <video id="glossvideo-{{glossvideo.pk}}" preload="metadata" controls muted
+                <video autoplay id="glossvideo-{{glossvideo.pk}}" preload="metadata" controls muted
                 {% if glossvideo.posterfile %} poster="{{glossvideo.posterfile.url|urlencode}}"{% endif %}>
                 {% if glossvideo.get_extension == '.mp4' %}
                     <source src="{{glossvideo.videofile.url|urlencode}}" type="video/mp4">

@@ -7,9 +7,12 @@ from django.db.models import Q, Prefetch
 from django.utils.translation import get_language
 from django.db.models.functions import Substr, Upper
 
-from .models import Gloss, Translation, GlossTranslations, SignLanguage, Dataset, GlossRelation, Tag, Keyword
+from .models import Gloss, Translation, GlossTranslations, SignLanguage, Dataset, GlossRelation, Keyword
 from ..video.models import GlossVideo
 from .forms import GlossPublicSearchForm
+
+# ISOF Per
+from tagging.models import Tag, TaggedItem
 
 # autocomplete
 # from dal import autocomplete
