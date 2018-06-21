@@ -22,9 +22,9 @@
     </div>
     {% else %}
     {# Translators: Sign in link #}
-    <a class="btn btn-default" role="button" href="/accounts/login/">
+    <a class="btn btn-default" role="button" href="{% url 'auth_login' %}">
         {% blocktrans %}Sign in{% endblocktrans %}</a>
-    <a class="btn btn-info" role="button" href="/accounts/register/">
+    <a class="btn btn-info" role="button" href="{% url 'registration_register' %}">
         {% blocktrans %}Create account{% endblocktrans %}
     </a>
     {% endif %}

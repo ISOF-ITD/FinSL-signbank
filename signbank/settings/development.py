@@ -11,9 +11,7 @@ DEBUG = True
 
 # A list of directories where Django looks for translation files.
 LOCALE_PATHS = (
-    os.path.abspath(
-        os.path.join(os.path.dirname(__file__),"..","..", "locale"),
-    ),
+    os.path.join(PROJECT_DIR, 'locale'),
 )
 
 # The absolute path to the directory where collectstatic will collect static files for deployment.
