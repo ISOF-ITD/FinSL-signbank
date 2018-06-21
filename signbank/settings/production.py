@@ -6,8 +6,8 @@ from signbank.settings.base import *
 # The following settings are defined in settings_secret:
 # SECRET_KEY, ADMINS, DATABASES, EMAIL_HOST, EMAIL_PORT, DEFAULT_FROM_EMAIL
 
-# ISOF extra (seems it is not needed):
-# PROJECT_NAME = '/teckenlistor'
+# ISOF extra (needed when many wsgi-apps in same webserver):
+PROJECT_NAME = '/teckenlistan'
 
 # IMPORTANT: Debug should always be False in production
 DEBUG = False
