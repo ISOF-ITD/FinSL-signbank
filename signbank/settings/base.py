@@ -137,7 +137,13 @@ INSTALLED_APPS = (
     'guardian',
     'notifications',
     'corsheaders',
+    'django.contrib.sitemaps',
 )
+
+ABSOLUTE_URL_OVERRIDES = {
+    # Allow using admin change url for notifications.
+    'auth.user': lambda user: "/admin/auth/user/%s/change/" % user.id,
+}
 
 # Location for upload of videos relative to MEDIA_ROOT, videos are stored here prior to copying over to the main
 # storage location

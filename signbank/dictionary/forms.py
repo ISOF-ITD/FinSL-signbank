@@ -5,11 +5,10 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.utils import OperationalError
+from django.db.utils import OperationalError, ProgrammingError
 
 from tagging.models import Tag
 
-from .models import build_choice_list
 from .models import Dataset, Language, SignLanguage, AllowedTags, GlossRelation, Gloss, Relation, \
     RelationToForeignSign, MorphologyDefinition,  FieldChoice, GlossURL
 
@@ -19,39 +18,16 @@ class GlossCreateForm(forms.ModelForm):
     Form for creating a new gloss.
     This form also overrides the ModelForm validations.
     """
-    attrs_reqd_focus = {'class': 'form-control', 'autofocus': '', 'required': ''}
-    attrs_default = {'class': 'form-control'}
-    # TODO: Check dataset permissions
     dataset = forms.ModelChoiceField(label=_('Dataset'), required=True, queryset=Dataset.objects.all(), empty_label=None)
-
-    idgloss = forms.CharField(label=_('Gloss'), required=True, widget=forms.TextInput(attrs=attrs_reqd_focus))
-    idgloss_en = forms.CharField(label=_('Gloss in English'), required=False,
-                                 widget=forms.TextInput(attrs=attrs_default))
-    videofile = forms.FileField(label=_('Gloss video'), allow_empty_file=True, required=False)
-    video_title = forms.CharField(label=_('Glossvideo title'), required=False)
-
     try:
         qs = AllowedTags.objects.get(content_type=ContentType.objects.get_for_model(Gloss)).allowed_tags.all()
-    except (ObjectDoesNotExist, OperationalError):
+    except (ObjectDoesNotExist, OperationalError, ProgrammingError):
         qs = Tag.objects.all()
     tag = forms.ModelChoiceField(queryset=qs, required=False, empty_label="---", to_field_name='name',
                                  widget=forms.Select(attrs={'class': 'form-control'}))
 
-    class Meta:
-        model = Gloss
-        fields = ['dataset', 'idgloss', 'idgloss_en', 'videofile']
-
-    def clean(self):
-        """
-        Validate the form data.
-        """
-        pass # Nothing here at the moment.
-
     def clean_idgloss(self):
-        """
-        Validates that the idgloss value in the chosen Dataset has not been taken yet.
-
-        """
+        """Validates that idgloss is unique in Dataset."""
         try:
             gloss = Gloss.objects.get(idgloss__exact=self.cleaned_data['idgloss'], dataset=self.cleaned_data['dataset'])
         except Gloss.DoesNotExist:
@@ -61,75 +37,36 @@ class GlossCreateForm(forms.ModelForm):
             _('This Gloss value already exists in the chosen Dataset. Please choose another value for Gloss.'),
             code='not_unique')
 
-    def clean_idgloss_en(self):
-        """
-        Overrides the default validations for idgloss_en.
-        Currently we don't want to validate this field.
-
-        """
-        return self.cleaned_data['idgloss_en']
-
-    def clean_videofile(self):
-        # Checking here that the file ends with .mp4 TODO: See if more checks are needed, like filetype, codec
-        if self.cleaned_data['videofile'] and not self.cleaned_data['videofile'].name.endswith('.mp4'):
-            raise forms.ValidationError('File is not a mp4. Please upload only mp4 files')
-        return self.cleaned_data['videofile']
-
-    def clean_video_title(self):
-        return self.cleaned_data['video_title']
+    class Meta:
+        model = Gloss
+        fields = ['dataset', 'idgloss', 'idgloss_en', ]
 
 
 class TagUpdateForm(forms.Form):
     """Form to add a new tag to a gloss"""
     try:
         qs = AllowedTags.objects.get(content_type=ContentType.objects.get_for_model(Gloss)).allowed_tags.all()
-    except (ObjectDoesNotExist, OperationalError):
+    except (ObjectDoesNotExist, OperationalError, ProgrammingError):
         qs = Tag.objects.all()
     tag = forms.ModelChoiceField(queryset=qs, empty_label=None, to_field_name='name',
                                  widget=forms.Select(attrs={'class': 'form-control'}))
-    delete = forms.BooleanField(required=False, widget=forms.HiddenInput)
+
+
+class TagDeleteForm(forms.Form):
+    """Form to delete a tag from a gloss"""
+    tag = forms.ModelChoiceField(queryset=Tag.objects.all(), empty_label=None, to_field_name='name')
+    delete = forms.BooleanField(required=True, widget=forms.HiddenInput)
 
 
 class TagsAddForm(forms.Form):
     """Form to add a new tags to a gloss"""
     try:
         qs = AllowedTags.objects.get(content_type=ContentType.objects.get_for_model(Gloss)).allowed_tags.all()
-    except (ObjectDoesNotExist, OperationalError):
+    except (ObjectDoesNotExist, OperationalError, ProgrammingError):
         qs = Tag.objects.all()
     tags = forms.ModelMultipleChoiceField(label=_('Tags'), queryset=qs, to_field_name='name')
 
 
-NULLBOOLEANCHOICES = [
-    (0, '---------'),
-    # Translators: YESNOCHOICES
-    (1, _('Unknown')),
-    # Translators: YESNOCHOICES
-    (2, _('True')),
-    # Translators: YESNOCHOICES
-    (3, _('False'))]
-
-RELATION_ROLE_CHOICES = (('', '---------'),
-                         # Translators: RELATION_ROLE_CHOICES
-                         ('all', _('All')),
-                         # Translators: RELATION_ROLE_CHOICES
-                         ('homonym', _('Homonym')),
-                         # Translators: RELATION_ROLE_CHOICES
-                         ('synonym', _('Synonym')),
-                         # Translators: RELATION_ROLE_CHOICES
-                         ('variant', _('Variant')),
-                         # Translators: RELATION_ROLE_CHOICES
-                         ('antonym', _('Antonym')),
-                         # Translators: RELATION_ROLE_CHOICES
-                         ('hyponym', _('Hyponym')),
-                         # Translators: RELATION_ROLE_CHOICES
-                         ('hypernym', _('Hypernym')),
-                         # Translators: RELATION_ROLE_CHOICES
-                         ('seealso', _('See Also')),
-                         )
-
-MORPHEME_ROLE_CHOICES = [
-                            # Translators: This is a choice option that probably represents nothing, don't translate if not needed to.
-                            ('', _('---------'))] + build_choice_list('MorphologyType')
 ATTRS_FOR_FORMS = {'class': 'form-control'}
 
 
@@ -152,7 +89,7 @@ class GlossSearchForm(forms.ModelForm):
 
     try:
         qs = AllowedTags.objects.get(content_type=ContentType.objects.get_for_model(Gloss)).allowed_tags.all()
-    except (ObjectDoesNotExist, OperationalError):
+    except (ObjectDoesNotExist, OperationalError, ProgrammingError):
         qs = Tag.objects.all()
     tags = forms.ModelMultipleChoiceField(queryset=qs, required=False)
     nottags = forms.ModelMultipleChoiceField(queryset=qs)
@@ -161,7 +98,8 @@ class GlossSearchForm(forms.ModelForm):
 
     # Translators: GlossSearchForm label
     hasvideo = forms.BooleanField(label=_('Has videos'), required=False)
-    hasnovideo = forms.BooleanField(label=_('Has no videos'), required=False)
+    hasnovideo = forms.BooleanField(label=_('No videos'), required=False)
+    multiplevideos = forms.BooleanField(label=_('Multiple videos'), required=False)
 
     # These have been disabled until they are later needed
     # TODO: To enable these, uncomment them.
@@ -223,7 +161,7 @@ class GlossRelationSearchForm(forms.Form):
 
     try:
         qs = AllowedTags.objects.get(content_type=ContentType.objects.get_for_model(GlossRelation)).allowed_tags.all()
-    except (ObjectDoesNotExist, OperationalError):
+    except (ObjectDoesNotExist, OperationalError, ProgrammingError):
         qs = Tag.objects.all()
     tags = forms.ModelMultipleChoiceField(queryset=qs, required=False, label=_("Relation type"))
 
@@ -236,7 +174,7 @@ class GlossRelationForm(forms.Form):
     target = forms.CharField(label=_("Gloss"), widget=forms.TextInput(attrs={'class': 'glossrelation-autocomplete'}))
     try:
         qs = AllowedTags.objects.get(content_type=ContentType.objects.get_for_model(GlossRelation)).allowed_tags.all()
-    except (ObjectDoesNotExist, OperationalError):
+    except (ObjectDoesNotExist, OperationalError, ProgrammingError):
         qs = Tag.objects.all()
     tag = forms.ModelChoiceField(label=_("Relation type:"),
                                  queryset=qs,
@@ -308,17 +246,25 @@ class CSVUploadForm(forms.Form):
     file = forms.FileField()
     dataset = forms.ModelChoiceField(queryset=Dataset.objects.all(), empty_label=None)
 
+    def clean_file(self):
+        file = self.cleaned_data['file']
+        if not file.name.endswith('.csv'):
+            raise forms.ValidationError(_('Must be a CSV file with .csv extension.'))
+        return file
+
 
 class DatasetMultipleChoiceField(forms.ModelMultipleChoiceField):
     """Override the field used for the label."""
     def label_from_instance(self, obj):
-        return obj.description
+        return obj.public_name
 
 
 class GlossPublicSearchForm(forms.Form):
     """Public search form."""
-    search = forms.CharField(label=_("Search"), required=False,
-                             widget=forms.TextInput(attrs={'placeholder': _('Search signs')}))
+    gloss = forms.CharField(label=_("Search gloss"), required=False,
+                             widget=forms.TextInput(attrs={'placeholder': _('Search gloss')}))
+    keyword = forms.CharField(label=_("Search translation equivalent"), required=False,
+                             widget=forms.TextInput(attrs={'placeholder': _('Search translation equivalent')}))
     try:
         signlang_qs = SignLanguage.objects.filter(
                 id__in=[x.signlanguage.id for x in Dataset.objects.filter(is_public=True)])
@@ -329,6 +275,9 @@ class GlossPublicSearchForm(forms.Form):
         to_field_name="language_code_3char", empty_label=_("All sign languages"), required=False,
         label=_("Sign language"))
     dataset = DatasetMultipleChoiceField(queryset=Dataset.objects.filter(is_public=True), required=False,
-                                             label=_("Lexicon"), widget=forms.CheckboxSelectMultiple(),
-                                             help_text=_("You can limit the search to these lexicons."))
+                                         label=_("You can restrict your search to these lexicons"),
+                                         widget=forms.CheckboxSelectMultiple())
 
+
+class LexiconForm(forms.Form):
+    dataset = forms.ModelChoiceField(queryset=Dataset.objects.all())

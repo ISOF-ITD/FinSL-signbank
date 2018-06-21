@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import django.utils.six as six
 import json
-import unicodecsv as csv
+import csv
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.db.models.fields import NullBooleanField
 from django.http import HttpResponse, JsonResponse
 from django.core.exceptions import PermissionDenied
 from django.template.loader import render_to_string
 from django.utils.translation import get_language
 from django.db.models import Prefetch
+from django.db.models import F
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
+from django.shortcuts import get_object_or_404
+
 from collections import defaultdict
 from django.contrib import messages
 from tagging.models import Tag, TaggedItem
@@ -25,7 +27,7 @@ from .forms import GlossSearchForm, TagsAddForm, GlossRelationForm, RelationForm
     GlossRelationSearchForm
 from .models import Gloss, Dataset, Translation, GlossTranslations, GlossURL, GlossRelation, RelationToForeignSign, \
     Relation, MorphologyDefinition
-from ..video.forms import VideoUploadForGlossForm
+from ..video.forms import GlossVideoForGlossForm
 from ..video.models import GlossVideo
 from ..comments import CommentTagForm
 
@@ -77,58 +79,54 @@ class GlossListView(ListView):
             raise PermissionDenied(msg)
 
         # Create the HttpResponse object with the appropriate CSV header.
-        response = HttpResponse(content_type='text/csv')
-        response[
-            'Content-Disposition'] = 'attachment; filename="dictionary-export.csv"'
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="dictionary-export.csv"'
+
+        writer = csv.writer(response)
+
+        csv_queryset = self.get_queryset()\
+            .select_related('created_by', 'updated_by')\
+            .prefetch_related('translation_set', 'glosstranslations_set')
 
         # We want to manually set which fields to export here
         fieldnames = ['idgloss', 'idgloss_en', 'notes', ]
         fields = [Gloss._meta.get_field(fieldname) for fieldname in fieldnames]
 
-        writer = csv.writer(response)
-
         # Defines the headings for the file. Signbank ID and Dataset are set first.
         header = ['Signbank ID'] + ['Dataset'] + [f.verbose_name for f in fields]
 
-        for extra_column in ['SignLanguage', 'Dialects', 'Keywords', 'Created', 'Updated']:
+        for extra_column in ['SignLanguage', 'Keywords', 'Created', 'Updated']:
             header.append(extra_column)
 
         writer.writerow(header)
 
-        for gloss in self.get_queryset():
-            row = [str(gloss.pk)]
+        for gloss in csv_queryset:
+            row = list()
+            row.append(str(gloss.pk))
             # Adding Dataset information for the gloss
             row.append(str(gloss.dataset))
+            # Add data from each field.
             for f in fields:
-
-                # Try the value of the choicelist
-                try:
-                    row.append(getattr(gloss, 'get_' + f.name + '_display')())
-
-                # If it's not there, try the raw value
-                except AttributeError:
-                    value = getattr(gloss, f.name)
-
-                    if isinstance(value, six.text_type):
-                        value = str(value)
-                    elif not isinstance(value, bytes):
-                        value = str(value)
-
+                value = getattr(gloss, f.name)
+                # If the value contains ';', put it in quotes.
+                if ";" in value:
+                    row.append('"{}"'.format(value))
+                else:
                     row.append(value)
 
             # Get SignLanguage of Gloss
             signlanguage = gloss.dataset.signlanguage
-            row.append(str(signlanguage))
+            row.append(signlanguage)
 
-            # get dialects
-            dialects = [dialect.name for dialect in gloss.dialect.all()]
-            row.append(", ".join(dialects))
-
-            # get translations
-            #trans = [t.keyword.text for t in gloss.translation_set.all()]
-            # The search page lists only English translations, therefore we have to query for all of them.
-            trans = [t.keyword.text for t in Translation.objects.filter(gloss=gloss)]
-            row.append(", ".join(trans))
+            # Get Translation equivalents. If GlossTranslations don't exist, get Translations.
+            if gloss.glosstranslations_set.all():
+                trans = [t.translations for t in gloss.glosstranslations_set.all()]
+            else:
+                # Translations are shown per user selected interface language, related objects don't work in this case.
+                trans = [t.keyword.text for t in Translation.objects.filter(gloss=gloss)]
+            translations = ", ".join(trans)
+            # Put translations inside quotes, because GlossTranslations might have ';'.
+            row.append('"{}"'.format(translations))
 
             # Created at and by
             created = str(gloss.created_at)+' by: '+str(gloss.created_by)
@@ -191,6 +189,12 @@ class GlossListView(ListView):
             if 'hasnovideo' in get and get['hasnovideo'] != '':
                 val = get['hasnovideo'] == 'on'
                 qs = qs.filter(glossvideo__isnull=val)
+
+        # If gloss has multiple GlossVideos
+        if 'multiplevideos' in get and get['multiplevideos'] != '' and get['multiplevideos'] == 'on':
+            # Include glosses that have more than one GlossVideo
+            qs = qs.annotate(videocount=Count('glossvideo')).filter(videocount__gt=1)
+
 
         # A list of phonology fieldnames
         fieldnames = ['handedness', 'strong_handshape', 'weak_handshape', 'location', 'relation_between_articulators',
@@ -406,39 +410,40 @@ class GlossDetailView(DetailView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(GlossDetailView, self).get_context_data(**kwargs)
-        context['dataset'] = self.get_object().dataset
-        context['dataset_users'] = [x.username for x in get_users_with_perms(context['dataset'])]
+        gloss = context['gloss']
+        dataset = gloss.dataset
+        context['dataset'] = dataset
+        context['dataset_users'] = list(get_users_with_perms(dataset).values_list('username', flat=True))
         context['tagsaddform'] = TagsAddForm()
         context['commenttagform'] = CommentTagForm()
-        context['videoform'] = VideoUploadForGlossForm()
+        context['glossvideoform'] = GlossVideoForGlossForm()
         context['relationform'] = RelationForm()
         context['morphologyform'] = MorphologyForm()
-        context['glossrelationform'] = GlossRelationForm(initial={'source': context['gloss'].id,})
+        context['glossrelationform'] = GlossRelationForm(initial={'source': gloss.id, })
         # Choices for GlossRelationForm
-        context['glossrelation_choices'] = Gloss.objects.filter(dataset=self.get_object().dataset)
+        context['dataset_glosses'] = json.dumps(list(Gloss.objects.filter(dataset=dataset).values(label=F('idgloss'), value=F('id'))))
         # GlossRelations for this gloss
-        context['glossrelations'] = GlossRelation.objects.filter(source=context['gloss'])
-        context['glossrelations_reverse'] = GlossRelation.objects.filter(target=context['gloss'])
-        context['glossurls'] = GlossURL.objects.filter(gloss=context['gloss'])
-        context['translation_languages_and_translations'] = \
-            context['gloss'].get_translations_for_translation_languages()
+        context['glossrelations'] = GlossRelation.objects.filter(source=gloss)
+        context['glossrelations_reverse'] = GlossRelation.objects.filter(target=gloss)
+        context['glossurls'] = GlossURL.objects.filter(gloss=gloss)
+        context['translation_languages_and_translations'] = gloss.get_translations_for_translation_languages()
 
         if self.request.user.is_staff:
             # Get some version history data
-            version_history = Version.objects.get_for_object(context['gloss']).prefetch_related('revision__user')
+            version_history = Version.objects.get_for_object(context['gloss']).prefetch_related('revision__user')[:20]
             translation_ct = ContentType.objects.get_for_model(Translation)
             for i, version in enumerate(version_history):
                 if not i+1 >= len(version_history):
                     ver1 = version.field_dict
                     ver2 = version_history[i+1].field_dict
-                    t1 = [x.object_repr for x in version.revision.version_set.filter(content_type=translation_ct)]
-                    t2 = [x.object_repr for x in version_history[i+1].revision.version_set.filter(content_type=translation_ct)]
+                    t1 = list(version_history[i].revision.version_set.filter(content_type=translation_ct).values_list('object_repr', flat=True))
+                    t2 = list(version_history[i+1].revision.version_set.filter(content_type=translation_ct).values_list('object_repr', flat=True))
                     version.translations_added = ", ".join(["+"+x for x in t1 if x not in set(t2)])
                     version.translations_removed = ", ".join(["-"+x for x in t2 if x not in set(t1)])
                     version.data_removed = dict([(key, value) for key, value in ver1.items() if value != ver2[key] and
-                                               key != 'updated_at' and key != 'updated_by_id'])
-                    version.data_added = dict([(key, value) for key, value in ver2.items() if value != ver1[key] and
                                                  key != 'updated_at' and key != 'updated_by_id'])
+                    version.data_added = dict([(key, value) for key, value in ver2.items() if value != ver1[key] and
+                                              key != 'updated_at' and key != 'updated_by_id'])
 
             context['revisions'] = version_history
 
@@ -487,7 +492,7 @@ def gloss_ajax_search_results(request):
     if 'search_results' in request.session and request.session['search_results'] != '':
         return JsonResponse(request.session['search_results'], safe=False)
     else:
-        return HttpResponse("OK")
+        return HttpResponse("OK", status=200)
 
 
 def gloss_ajax_complete(request, prefix):
@@ -504,10 +509,10 @@ def gloss_ajax_complete(request, prefix):
     return HttpResponse(json.dumps(result), {'content-type': 'application/json'})
 
 
-def gloss_list_xml(self, dataset):
+def gloss_list_xml(self, dataset_id):
     """Returns all entries in dictionarys idgloss fields in XML form that is supported by ELAN"""
     # http://www.mpi.nl/tools/elan/EAFv2.8.xsd
-    dataset = Dataset.objects.get(id=dataset)
+    dataset = get_object_or_404(Dataset, id=dataset_id)
     return serialize_glosses(dataset,
                              Gloss.objects.filter(dataset=dataset)
                              .prefetch_related(
@@ -522,7 +527,7 @@ def serialize_glosses(dataset, queryset):
         # Get Finnish translation equivalents from glosstranslations or from translation_set
         if gloss.glosstranslations_set.exists() and "fin" in [x.language.language_code_3char for x in
                                                               gloss.glosstranslations_set.all()]:
-            gloss.trans_fin = [x for x in gloss.glosstranslations_set.all() if x.language.language_code_3char=="fin"]
+            gloss.trans_fin = [x for x in gloss.glosstranslations_set.all() if x.language.language_code_3char == "fin"]
         else:
             gloss.trans_fin = [x.keyword.text for x in gloss.translation_set.all() if
                                x.language.language_code_3char == "fin"]
@@ -530,7 +535,7 @@ def serialize_glosses(dataset, queryset):
         if gloss.glosstranslations_set.exists() and "eng" in [x.language.language_code_3char for x in
                                                               gloss.glosstranslations_set.all()]:
             gloss.trans_eng = [x for x in gloss.glosstranslations_set.all() if
-                               x.language.language_code_3char=="eng"]
+                               x.language.language_code_3char == "eng"]
         else:
             gloss.trans_eng = [x.keyword.text for x in gloss.translation_set.all() if
                                x.language.language_code_3char == "eng"]
@@ -602,7 +607,10 @@ class GlossRelationListView(ListView):
             qs = qs.filter(query)
 
         # Prefetching translation and dataset objects for glosses to minimize the amount of database queries.
-        qs = qs.prefetch_related(Prefetch('source__dataset'), Prefetch('target__dataset'))
+        qs = qs.prefetch_related(Prefetch('source__dataset'), Prefetch('target__dataset'),
+                                 Prefetch('source__glossvideo_set', queryset=GlossVideo.objects.all().order_by('version')),
+                                 Prefetch('target__glossvideo_set', queryset=GlossVideo.objects.all().order_by('version'))
+                                 )
 
         # Set order according to GET field 'order'
         if 'order' in get:

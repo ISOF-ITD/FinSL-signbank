@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _lazy
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.forms import ModelForm
@@ -34,7 +35,8 @@ class TagListFilter(admin.SimpleListFilter):
             return queryset.filter(id__in=[x.object_id for x in TaggedItem.objects.filter(tag__name=self.value(),
                                                                                           content_type=ct)])
 
-class DatasetAdmin(GuardedModelAdmin):
+
+class DatasetAdmin(GuardedModelAdmin, ModelTranslationAdmin):
     model = Dataset
     list_display = ('name', 'is_public', 'signlanguage',)
 
@@ -47,8 +49,20 @@ class TranslationAdmin(admin.ModelAdmin):
 
 class TranslationInline(admin.TabularInline):
     model = Translation
-    extra = 1
-    raw_id_fields = ['keyword']
+    extra = 0
+
+    def get_readonly_fields(self, request, obj=None):
+        # Set all fields to be read only.
+        return list(set(
+            [field.name for field in self.opts.local_fields] +
+            [field.name for field in self.opts.local_many_to_many]
+        ))
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class AllowedTagsAdmin(VersionAdmin):
@@ -121,11 +135,11 @@ class GlossTagInline(TagAdminInline):
 class GlossTranslationsInline(admin.TabularInline):
     model = GlossTranslations
     fields = ('language', 'translations', )
-    readonly_fields = ('language', 'translations', )
     extra = 0
 
     def has_add_permission(self, request):
-        return False
+        #return False
+        return True
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -133,12 +147,14 @@ class GlossTranslationsInline(admin.TabularInline):
 
 def publish(modeladmin, request, queryset):
     queryset.update(published=True)
-publish.short_description = _("Publish selected glosses")
 
 
 def unpublish(modeladmin, request, queryset):
     queryset.update(published=False)
-unpublish.short_description = _("Unpublish selected glosses")
+
+
+publish.short_description = _lazy("Publish selected glosses")
+unpublish.short_description = _lazy("Unpublish selected glosses")
 
 
 class GlossAdmin(VersionAdmin):

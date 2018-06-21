@@ -3,50 +3,26 @@
 {% load i18n %}
 {% load staticfiles %}
 {# Translators: Title for sign search page #}
-{% block bootstrap3_title %}: {% blocktrans %}Search Signs{% endblocktrans %}{% endblock %}
+{% block bootstrap3_title %}{% blocktrans %}Advanced Search{% endblocktrans %} | {% endblock %}
 {% block extrahead %}
-<link rel="stylesheet" href="{% static "css/jquery-ui/jquery-ui.min.css" %}">
+<link rel="stylesheet" href="{% static 'css/jquery-ui/jquery-ui.min.css' %}">
 {% endblock %}
 
 {% block extrajs %}
-  <script src="{% static "js/jquery-ui.min.js" %}"></script>
-  <script>
-  $( function() {
-    $( document ).tooltip({
-      items: "[data-video-src]",
-      content: function() {
-        var element = $( this );
-        if ( element.is( "[data-video-src]" ) ) {
-          var src_video = element.attr("data-video-src");
-          var src_poster = element.attr("data-thumbnail-src");
-          var video_ext = element.attr("data-video-ext");
-          if ( src_video != "") {
-            return "<video preload='none' autoplay muted poster='"+src_poster+"' width='250'><source src='"+src_video+"' type='video/"+video_ext+"'>Your browser does not support the video tag.</video>";
-          }
+<script src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script src="{% static 'js/video-tooltip.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/typeahead.bundle.min.js' %}"></script>
+
+<script type='text/javascript'>
+$(document).ready(function(){
+    $('.collapsetoggle').on('click', function() {
+        if ($(this).text() == 'Show') {
+            $(this).text('Hide');
+        } else {
+            $(this).text('Show');
         }
-      }
     });
-  } );
-  </script>
-    <script type="text/javascript" src="{% static "js/typeahead.bundle.min.js" %}"></script>
-
-    <script type='text/javascript'>
-    
-    
-    $(document).ready(function(){
-        
-        
-        $('.collapsetoggle').click(function() {
-            if ($(this).text() == 'Show') {
-                $(this).text('Hide');
-            } else {
-                $(this).text('Show');
-            }
-        });
-        
-        
-    });
-
+});
 
 
 // http://www.javascript-coder.com/javascript-form/javascript-reset-form.phtml
@@ -149,6 +125,7 @@ function clearForm(myFormElement) {
                           <li class="list-group-item list-group-item-success">{% bootstrap_field searchform.published show_label=False bound_css_class="not-bound" %}</li>
                           <li class="list-group-item list-group-item-warning">{% bootstrap_field searchform.hasvideo show_label=False bound_css_class="not-bound" %}</li>
                           <li class="list-group-item list-group-item-danger">{% bootstrap_field searchform.hasnovideo show_label=False bound_css_class="not-bound" %}</li>
+                          <li class="list-group-item">{% bootstrap_field searchform.multiplevideos show_label=False bound_css_class="not-bound" %}</li>
                         </ul>
                 </div>
                 <div class="col-md-6 col-sm-6 searchinput">
@@ -217,7 +194,7 @@ function clearForm(myFormElement) {
         <tr {% if gloss.published %}class="success"{% elif gloss.glossvideo_set.exists %}class="warning"{% else %}class="danger"{% endif %}>
             <td><span class="dataset-{{gloss.dataset.id}}-color label label-default">{{ gloss.dataset }}</span></td>
             {# Insert glossvideo.posterfile.url into data-thumbnail-src, if the highest priority gloss has one. #}
-            <td><a href="/dictionary/gloss/{{gloss.pk}}/"
+            <td><a href="{% url 'dictionary:admin_gloss_view' pk=gloss.pk %}"
                    data-thumbnail-src="{% if gloss.glossvideo_set.all.0.posterfile %}{{gloss.glossvideo_set.all.0.posterfile.url}}{% endif %}"
                    data-video-src="{% if gloss.glossvideo_set.all.0.videofile %}{{ gloss.glossvideo_set.all.0.videofile.url }}"
                    data-video-ext="{{ gloss.glossvideo_set.all.0.get_extension|slice:"1:" }}{% endif %}">{{ gloss.idgloss }}</a>

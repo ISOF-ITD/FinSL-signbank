@@ -5,25 +5,31 @@ from django.conf.urls import url, include
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib import admin
 from django.conf import settings
+from django.contrib.sitemaps.views import sitemap
 
 # Views
 from registration.backends.hmac.views import RegistrationView
-from .dictionary import views as dictionary_views
 from .dictionary.adminviews import GlossListView
-from .tools import reload_signbank, infopage, refresh_videofilenames
+from .tools import infopage
 from django.contrib.flatpages import views as flatpages_views
 from .comments import edit_comment, latest_comments, latest_comments_page, CommentListView, remove_tag
 import notifications.urls
+from .sitemaps import GlossSitemap, SignbankFlatPageSiteMap, StaticViewSitemap
 # Forms
 from .customregistration.forms import CustomUserForm
-admin.autodiscover()
-from .adminsite import publisher_admin
 
+# Application namespace
 app_name = 'signbank'
+
 urlpatterns = [
     # Root page
     url(r'^$', flatpages_views.flatpage, {'url': '/'},
         name='root_page'),
+
+    url(r'^sitemap\.xml$', sitemap, {'sitemaps': {'flatpages': SignbankFlatPageSiteMap,
+                                                  'static': StaticViewSitemap,
+                                                  'gloss': GlossSitemap, }},
+        name='django.contrib.sitemaps.views.sitemap'),
 
     # This allows to change the translations site language
     url(r'^i18n/', include('django.conf.urls.i18n')),
@@ -33,12 +39,9 @@ urlpatterns = [
         include('signbank.dictionary.urls', namespace='dictionary')),
     url(r'^video/', include('signbank.video.urls', namespace='video')),
 
-    # Hardcoding a number of special urls:
+    # We used to have this url, keeping it in order to support old urls.
     url(r'^signs/search/$', permission_required('dictionary.search_gloss')(GlossListView.as_view()),
-        name='admin_gloss_list'),
-    url(r'^signs/add/$', dictionary_views.add_new_sign, name='create_gloss'),
-    # TODO: Remove this in the future
-    # url(r'^signs/import_csv/$', dictionary_views.import_csv, name='old_import_csv'),
+        name='sign_search'),
 
     # Registration urls for login, logout, registration, activation etc.
     url(r'^accounts/register/$', RegistrationView.as_view(form_class=CustomUserForm), name='registration_register',),
@@ -47,7 +50,7 @@ urlpatterns = [
     # Django-contrib-comments urls
     url(r'^comments/', include('django_comments.urls')),
     # Custom functionality added to comments app. Comment editing.
-    url (r'^comments/update/(?P<id>\d+)/$', login_required(edit_comment, login_url='/accounts/login/')),
+    url(r'^comments/update/(?P<id>\d+)/$', login_required(edit_comment, login_url='/accounts/login/')),
     # Feed for latest comments.
     url(r'^comments/latest/$', permission_required('dictionary.search_gloss')(latest_comments),
         name='latest_comments'),
@@ -67,22 +70,11 @@ urlpatterns = [
         include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
 
-    # Speciall admin sub site for Publisher role
-    url(r'^publisher/', include(publisher_admin.urls)),
-
     # Summernote urls, Summernote is the WYSIWYG editor currently used in Signbank
     url(r'^summernote/', include('django_summernote.urls')),
 
     # Infopage, where we store some links and statistics
     url(r'info/', infopage, name='infopage'),
-
-    # This URL runs a script on tools.py that reloads signbank app via 'touch signbank/wsgi.py'
-    #url(r'reload_signbank/$',
-    #    reload_signbank),
-
-    # Incase you need to run this command from web (if for example only webserver has user rights to the folder)
-    # uncomment the following line. It updates videofilenames to match the current filenaming policy.
-    # url(r'refresh_videofilenames/$', refresh_videofilenames),
 ]
 if settings.DEBUG:
     import debug_toolbar

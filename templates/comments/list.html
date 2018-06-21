@@ -12,7 +12,7 @@ function load_comment_edit(commentid) {
         <article class="comment">
             <header id="c{{ comment.id }}">
                 <strong>{{ comment.submit_date }} -
-                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ comment.name }}</strong>
+                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ comment.user }}</strong>
             {% if user.is_authenticated %}
                 {% if user == comment.user %}
                 <button id="edit_comment_{{comment.id}}" class="btn-comment-edit btn btn-primary btn-xs
@@ -55,7 +55,7 @@ function load_comment_edit(commentid) {
         <h4 class="modal-title" id="ConfirmCommentDeleteModal">{% blocktrans %}Delete comment?{% endblocktrans %}</h4>
       </div>
       <div class="modal-body">
-          <form action="/comments/delete/" method="post">
+          <form action="" method="post">
             {% csrf_token %}
             <input type="hidden" name="comment_id" value="">
             <input type="hidden" name="next" value="{{request.path}}">

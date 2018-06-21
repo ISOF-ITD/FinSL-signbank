@@ -1,12 +1,13 @@
 {% extends "baselayout.html" %}
 {% load i18n %}
 {% load staticfiles %}
+{% block bootstrap3_title %}{% blocktrans %}Manage Uploaded Videos{% endblocktrans %} | {% endblock %}
 {% block extrahead %}
 <link rel="stylesheet" href="{% static "css/jquery-ui/jquery-ui.min.css" %}">
 {% endblock %}
 {% block content %}
 <div class="page-header">
-  <h2>{% blocktrans %}Uploaded Glossvideos{% endblocktrans %} <small>{% blocktrans %}Connect Glossvideos to Glosses{% endblocktrans %}</small></h2>
+  <h2>{% blocktrans %}Manage Uploaded Videos{% endblocktrans %} <small>{% blocktrans %}Connect Glossvideos to Glosses{% endblocktrans %}</small></h2>
 </div>
 <div id="dataset" class="panel panel-default">
     <div class="panel-body">
@@ -40,7 +41,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">{{video.videofile}}</div>
             <div class="panel-body">
-            <form id="glossvideo{{video.pk}}" class="video-form" method="POST" action="/video/update/">
+            <form id="glossvideo{{video.pk}}" class="video-form" method="POST" action="{% url 'video:glossvideo_update' %}">
                 {% csrf_token %}
                 <input type="hidden" name="glossvideo" class="glossvideo-pk" value="{{video.pk}}">
                 <div id="videocontainer">

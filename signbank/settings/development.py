@@ -16,28 +16,32 @@ LOCALE_PATHS = (
 
 # The absolute path to the directory where collectstatic will collect static files for deployment.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = '/home/heilniem/signbank-fi/static/'
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 # This setting defines the additional locations the staticfiles app will traverse if the FileSystemFinder finder
 # is enabled, e.g. if you use the collectstatic or findstatic management command or use the static file serving view.
 STATICFILES_DIRS = (
-    os.path.join(PROJECT_DIR, "signbank", "static"),
+    os.path.join(PROJECT_DIR, 'signbank', 'static'),
 )
 
+# Set up a dummy cache for development, it doesn't actually cache anything.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
 # Absolute filesystem path to the directory that will hold user-uploaded files.
-MEDIA_ROOT = 'C:/data/teckenvideo'
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 # URL that handles the media served from MEDIA_ROOT, used for managing stored files.
 # It must end in a slash if set to a non-empty value.
 MEDIA_URL = '/media/'
 
-# Within MEDIA_ROOT we store newly uploaded gloss videos in this directory
-GLOSS_VIDEO_DIRECTORY = 'glossvideo'
-
 # location and URL for uploaded files
-UPLOAD_ROOT = MEDIA_ROOT + "upload/"
-UPLOAD_URL = MEDIA_URL + "upload/"
+UPLOAD_ROOT = MEDIA_ROOT + 'upload/'
+UPLOAD_URL = MEDIA_URL + 'upload/'
 
 # To test emailing, use this to show emails in the console
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 LOGGING = {
     'version': 1,
@@ -46,7 +50,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'C://Users//localperla331//PycharmProjects//log//signbankdebug.log',
+            'filename': os.path.join(PROJECT_DIR, 'debug.log'),
         },
     },
     'loggers': {
@@ -60,9 +64,10 @@ LOGGING = {
 
 # Turn on lots of logging
 DO_LOGGING = True
-LOG_FILENAME = "debug.log"
+LOG_FILENAME = 'debug.log'
 
 if DEBUG:
     # Setting up debug toolbar.
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
     INSTALLED_APPS += ('debug_toolbar',)
+    DEBUG_TOOLBAR_CONFIG = {'RESULTS_CACHE_SIZE': 100}

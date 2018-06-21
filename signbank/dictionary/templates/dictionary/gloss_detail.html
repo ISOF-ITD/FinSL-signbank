@@ -3,9 +3,11 @@
 {% load bootstrap3 %}
 {% load i18n %}
 {% load staticfiles %}
+{% block bootstrap3_title %}{{gloss}} [{{gloss.dataset}}] | {% endblock %}
 {% block extrahead %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/tagmanager.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'css/jquery.atwho.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/jquery-ui/jquery-ui.min.css' %}">
 {% endblock %}
 {% block extrajs %}
 <script src="{% static 'js/jquery.caret.min.js' %}"></script>
@@ -57,7 +59,7 @@ $(document).ready(function () {
                 var a = document.createElement("a");
                 a.setAttribute("class", "btn btn-default");
                 a.style["float"] = "none";
-                a.href = "/dictionary/gloss/" + json_data[key].id + "/";
+                a.href = "/dictionary/advanced/gloss/" + json_data[key].id + "/";
                 a.id = json_data[key].id;
                 var linktext = document.createTextNode(json_data[key].gloss);
                 a.appendChild(linktext);
@@ -82,34 +84,50 @@ $(document).ready(function () {
                 // Scrolling to the active button
                 $('#searchresults').scrollLeft(leftOffset);
             }
-
         }
     });
 </script>
-
 {% if perms.dictionary.change_gloss %}
     <script type='text/javascript'>
          var edit_post_url = '{% url 'dictionary:update_gloss' gloss.id %}';
-         var handshape_choices = {{gloss.handshape_choices_json|safe}};
-         var location_choices = {{gloss.location_choices_json|safe}};
-         var palm_orientation_choices = {{gloss.palm_orientation_choices_json|safe}};
-         var relative_orientation_choices = {{gloss.relative_orientation_choices_json|safe}};
-         var secondary_location_choices = {{gloss.secondary_location_choices_json|safe}};
-         var relation_role_choices = {{gloss.relation_role_choices_json|safe}};
-         var languages = {{gloss.language_choices|safe}};
-         var dialects = {{gloss.dialect_choices|safe}};
-
          var choice_lists = {{gloss.get_choice_lists|safe}};
-
          var csrf_token = '{{csrf_token}}';
     </script>
     <script type='text/javascript' src="{% static "js/gloss_edit.js" %}"></script>
+    <script>
+        // Make setting videos publicity form ajax.
+        $( ".change-video-publicity-form" ).submit(function( event ) {
+          event.preventDefault();
+          var formurl = $( this ).attr('action');
+          var formdata = $( this ).serialize();
+          var elem = $(this);
+          var set_private_text = '{% blocktrans %}Set private{% endblocktrans %}';
+          var set_public_text = '{% blocktrans %}Set public{% endblocktrans %}';
+          var formbutton_text = elem.children('button').text();
+          var input_value = elem.children('input[name="is_public"]').val();
+          $.ajax({
+          type: "POST",
+            url: formurl,
+            data: formdata,
+          })
+          .done( function() {
+            elem.closest('div.player').toggleClass('video-not-public');
+            // Toggle buttons text between private_text and public_text
+            elem.children('button').text(formbutton_text == set_public_text ? set_private_text : set_public_text);
+            // Toggle hidden inputs value between True and False
+            elem.children('input[name="is_public"]').val(input_value == 'True' ? 'False' : 'True');
+          })
+          .fail( function () {
+            console.log('Could not change publicity.');
+          });
+        });
+    </script>
 {% endif %}
     {# This is for GlossRelation form #}
     <script src="{% static "js/jquery-ui.min.js" %}"></script>
     <script>
       $( function() {
-        var availableTags = [{% for g in glossrelation_choices %}{label:"{{g.idgloss}}", value:"{{g.id}}"},{% endfor %}];
+        var availableTags = {{dataset_glosses|safe}};
         $( ".glossrelation-autocomplete" ).autocomplete({
           source: availableTags
         });
@@ -122,6 +140,9 @@ $('#id_comment').atwho({
     data: {{dataset_users|safe}},
 });
     </script>
+
+    <script src="{% static 'js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'js/video-tooltip.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -162,19 +183,21 @@ $('#id_comment').atwho({
 
                 {% if gloss.glossvideo_set.exists %}
                     {% for glossvideo in gloss.glossvideo_set.all %}
-                        <div class="player">
+                        <div class="player well well-sm{% if glossvideo.is_public %} video-is-public{% else %} video-not-public{% endif %}">
                             <div class="video-title">
                                 <h4 class="edit edit_text" id="video_title{{glossvideo.pk}}">{{glossvideo.title}}</h4>
                             </div>
-                            <video id="glossvideo-{{glossvideo.pk}}" width="450" preload="metadata" controls muted
-                                   {% if glossvideo.posterfile %} poster="{{glossvideo.posterfile.url|urlencode}}"{% endif %}>
-                                {% if glossvideo.get_extension == '.mp4' %}
-                                <source src="{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
-                                {% elif glossvideo.get_extension == '.webm' %}
-                                <source src="{{glossvideo.videofile.url|urlencode}}" type="video/webm">
-                                {% endif %}
-                                {% blocktrans %}Your browser does not support the video tag.{% endblocktrans %}
-                            </video>
+                            <div class="embed-responsive embed-responsive-16by9">
+                                <video id="glossvideo-{{glossvideo.pk}}" class="embed-responsive-item" width="450" preload="metadata" controls muted
+                                       {% if glossvideo.posterfile %} poster="{{glossvideo.posterfile.url|urlencode}}"{% endif %}>
+                                    {% if glossvideo.get_extension == '.mp4' %}
+                                    <source src="{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
+                                    {% elif glossvideo.get_extension == '.webm' %}
+                                    <source src="{{glossvideo.videofile.url|urlencode}}" type="video/webm">
+                                    {% endif %}
+                                    {% blocktrans %}Your browser does not support the video tag.{% endblocktrans %}
+                                </video>
+                            </div>
                             <div class="video_edit" style="display:none;">
                                 <div class="video-ordering">
                                     <form action="{% url 'video:change_glossvideo_order' %}" method="post">{% csrf_token %}
@@ -190,8 +213,20 @@ $('#id_comment').atwho({
                                 <div class="poster-edit">
                                     <button type="button" class="btn btn-success" id="vidbtn-{{glossvideo.pk}}" onclick="grabScreenshot({{glossvideo.pk}})" data-toggle="modal" data-target="#glossvideo{{glossvideo.pk}}-Modal">{% blocktrans %}Capture new poster image{% endblocktrans %}</button>
                                 </div>
+                                <div class="change-video-publicity">
+                                    <form class="change-video-publicity-form" action="{% url 'video:change_glossvideo_publicity' %}" method="post">{% csrf_token %}
+                                        <input type="hidden" name="videoid" value="{{glossvideo.pk}}">
+                                        {% if glossvideo.is_public %}
+                                            <input type="hidden" name="is_public" value="False">
+                                            <button type="submit" class="btn btn-default">{% blocktrans %}Set private{% endblocktrans %}</button>
+                                        {% else %}
+                                            <input type="hidden" name="is_public" value="True">
+                                            <button type="submit" class="btn btn-default">{% blocktrans %}Set public{% endblocktrans %}</button>
+                                        {% endif %}
+                                    </form>
+                                </div>
                             </div>
-                            <hr>
+
                             <!-- Modal -->
                             <div class="modal fade" id="glossvideo{{glossvideo.pk}}-Modal" tabindex="-1" role="dialog" aria-labelledby="glossvideo{{glossvideo.pk}}-ModalLabel">
                                 <div class="modal-dialog modal-lg" role="document">
@@ -251,15 +286,15 @@ $('#id_comment').atwho({
                         <div class="uploadvid">
                             <fieldset>
                                 {# Translators: Upload/Add new video to Signbank #}
-                                <legend>{% blocktrans %}Upload New Video{% endblocktrans %}</legend>
-                                <form action="/video/upload/gloss/" method="post" enctype="multipart/form-data">
+                                <legend>{% blocktrans %}Upload Video{% endblocktrans %}</legend>
+                                <form action="{% url 'video:upload_glossvideo_gloss' %}" method="post"
+                                      enctype="multipart/form-data">
                                     {% csrf_token %}
                                     <input type='hidden' name='redirect' value='{{request.path}}?edit'>
-                                        {% bootstrap_field videoform.videofile %}
-                                        {% bootstrap_field videoform.video_title %}
+                                    <input type='hidden' name='gloss' value='{{gloss.pk}}'>
+                                    {% bootstrap_field glossvideoform.videofile show_help=False %}
+                                    {% bootstrap_field glossvideoform.title %}
 
-
-                                    <input type='hidden' name='gloss_id' value='{{gloss.pk}}'>
                                     {# Translators: Submit button #}
                                     <input class='btn btn-primary' type='submit'
                                            value='{% blocktrans %}Upload Video{% endblocktrans %}' style="margin-top:5px"/>
@@ -335,12 +370,12 @@ $('#id_comment').atwho({
                 </tr>
                 <tr>
                     <th>{% blocktrans %}Created:{% endblocktrans %}</th>
-                    <td id='created'>{% if gloss.created_at %}<span class="glyphicon glyphicon-time" aria-hidden="true"></span> <em>{{ gloss.created_at|date:'Y-m-d H:i' }}</em> <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ gloss.created_by.first_name }} {{ gloss.created_by.last_name }}{% endif %}</td>
+                    <td id='created'>{% if gloss.created_at %}<span class="glyphicon glyphicon-time" aria-hidden="true"></span> <em>{{ gloss.created_at|date:'Y-m-d H:i' }}</em> <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ gloss.created_by.username }}{% endif %}</td>
                 </tr>
                 <tr>
                     <th>{% blocktrans %}Updated:{% endblocktrans %}</th>
                     <td id='updated'>{% if gloss.updated_at %}
-                        <span class="glyphicon glyphicon-time" aria-hidden="true"></span> <em>{{ gloss.updated_at|date:'Y-m-d H:i' }}</em> <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ gloss.updated_by.first_name }} {{ gloss.updated_by.last_name }}
+                        <span class="glyphicon glyphicon-time" aria-hidden="true"></span> <em>{{ gloss.updated_at|date:'Y-m-d H:i' }}</em> <span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ gloss.updated_by.username }}
                         {% if request.user.is_staff %}
                         <!-- Modal trigger -->
                         <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modalChangeHistory">
@@ -367,11 +402,11 @@ $('#id_comment').atwho({
                                 </p>
                                 <ul class="">
                                 {% for version in revisions %}
-                                    <li><a href="/admin/dictionary/gloss/{{gloss.id}}/history/{{version.id}}/">
+                                    <li><a href="{% url 'admin:dictionary_gloss_revision' gloss.pk version.pk %}">
                                         <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
                                         {{version.revision.date_created|date:'Y-m-d H:i'}}
                                         <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-                                        {{version.revision.user.first_name}} {{version.revision.user.last_name }}
+                                        {{version.revision.user.username }}
                                         {{version.revision.comment}} |
                                         {% if version.data_added or version.data_removed %}{% blocktrans %}Gloss fields:{% endblocktrans %}{% endif %}
                                         {% if version.data_added %}<span style="color:green;">+{{version.data_added}}</span>{% endif %}

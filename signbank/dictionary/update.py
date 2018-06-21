@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 import re
 import csv
+import codecs
+
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, HttpResponseBadRequest, Http404
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib import messages
@@ -18,41 +20,9 @@ from guardian.shortcuts import get_perms, get_objects_for_user
 from .models import Gloss, Dataset, Translation, Keyword, Language, Dialect, GlossURL, \
     GlossRelation, GlossTranslations, FieldChoice, MorphologyDefinition, RelationToForeignSign, Relation
 from .models import build_choice_list
-from .forms import TagsAddForm, TagUpdateForm, GlossCreateForm, GlossRelationForm, RelationForm, \
+from .forms import TagsAddForm, TagUpdateForm, TagDeleteForm, GlossRelationForm, RelationForm, \
     RelationToForeignSignForm, MorphologyForm, CSVUploadForm
-from ..video.views import addvideo
 from ..video.models import GlossVideo
-
-
-@permission_required('dictionary.add_gloss')
-def add_gloss(request):
-    # TODO: Is this view used anywhere?
-    if request.method == 'POST':
-        form = GlossCreateForm(request.POST, request.FILES)
-        if form.is_valid():
-            if 'view_dataset' not in get_perms(request.user, form.cleaned_data["dataset"]):
-                # If user has no permissions to dataset, raise PermissionDenied to show 403 template.
-                msg = _("You do not have permissions to create glosses for this lexicon.")
-                messages.error(request, msg)
-                raise PermissionDenied(msg)
-
-            new_gloss = form.save(commit=False)
-            new_gloss.created_by = request.user
-            new_gloss.updated_by = request.user
-            new_gloss.save()
-            if form.cleaned_data["tag"]:
-                Tag.objects.add_tag(new_gloss, form.cleaned_data["tag"].name)
-
-            redirecturl = '/dictionary/gloss/' + str(new_gloss.pk) + '/?edit'
-            addvideo(request, new_gloss.pk, redirecturl)
-            #return HttpResponseRedirect(reverse('dictionary:admin_gloss_list'))
-            return HttpResponseRedirect(redirecturl)
-    else:
-        form = GlossCreateForm()
-        # Make sure that we will show the user only datasets the user is allowed access to.
-        allowed_datasets = get_objects_for_user(request.user, 'dictionary.view_dataset')
-        form.fields["dataset"].queryset = Dataset.objects.filter(id__in=[x.id for x in allowed_datasets])
-    return render(request, 'dictionary/add_gloss.html', {'add_gloss_form': form})
 
 
 @permission_required('dictionary.change_gloss')
@@ -230,29 +200,12 @@ def update_keywords(gloss, field, value, language_code_2char):
                                         'is unclear which languages translations to edit.'),
                                       content_type='text/plain')
 
-    # Removing instances of number(s) that end with a dot from the delivered 'value'.
-    cleaned_value = re.sub('\d\.', '', value)
-    # Splitting the remaining string on comma, dot or semicolon. Then strip spaces around the keyword(s).
-    kwds = [k.strip() for k in re.split('[,.;]', cleaned_value)]
-    # Remove current Translations
-    current_trans = gloss.translation_set.filter(language=language)
-    current_trans.delete()
-    # Create new Translations, use existing Keywords if present or create new ones.
-    for i in range(len(kwds)):
-        (kobj, created) = Keyword.objects.get_or_create(text=kwds[i])
-        # Create a new Translation, save the index to represent the order of Translations for this Gloss.
-        trans = Translation(gloss=gloss, keyword=kobj, index=i, language=language)
-        trans.save()
-
-    try:
-        glosstranslations = GlossTranslations.objects.get(gloss=gloss, language=language)
-    except GlossTranslations.DoesNotExist:
-        glosstranslations = GlossTranslations.objects.create(gloss=gloss, language=language)
-
+    (glosstranslations, created) = GlossTranslations.objects.get_or_create(gloss=gloss, language=language)
     glosstranslations.translations = value
     glosstranslations.save()
-    # Save updated_by field for Gloss
+    # Save updated_by and updated_at field for Gloss
     gloss.save()
+
     return HttpResponse(value, content_type='text/plain')
 
 
@@ -549,11 +502,10 @@ def add_tag(request, glossid):
             messages.error(request, msg)
             raise PermissionDenied(msg)
 
-        form = TagUpdateForm(request.POST)
+        form = TagDeleteForm(request.POST)
         if form.is_valid():
-            tag = form.cleaned_data['tag']
-
             if form.cleaned_data['delete']:
+                tag = form.cleaned_data['tag']
                 # get the relevant TaggedItem
                 ti = get_object_or_404(
                     TaggedItem, object_id=gloss.id, tag__name=tag,
@@ -561,13 +513,18 @@ def add_tag(request, glossid):
                 ti.delete()
                 response = HttpResponse(
                     'deleted', content_type='text/plain')
-            else:
-                # we need to wrap the tag name in quotes since it might contain
-                # spaces
-                Tag.objects.add_tag(gloss, '"%s"' % tag)
-                # response is new HTML for the tag list and form
-                response = render(request, 'dictionary/glosstags.html',
-                                  {'gloss': gloss, 'tagsaddform': TagsAddForm()})
+                return response
+
+        form = TagUpdateForm(request.POST)
+        if form.is_valid():
+            tag = form.cleaned_data['tag']
+
+            # we need to wrap the tag name in quotes since it might contain spaces
+            Tag.objects.add_tag(gloss, '"%s"' % tag)
+            # response is new HTML for the tag list and form
+            response = render(request, 'dictionary/glosstags.html',
+                              {'gloss': gloss, 'tagsaddform': TagsAddForm()})
+
         else:
             # If we are adding (multiple) tags, this form should validate.
             form = TagsAddForm(request.POST)
@@ -605,7 +562,7 @@ def import_gloss_csv(request):
                 raise PermissionDenied(msg)
 
             try:
-                glossreader = csv.reader(form.cleaned_data['file'], delimiter=',', quotechar='"')
+                glossreader = csv.reader(codecs.iterdecode(form.cleaned_data['file'], 'utf-8'), delimiter=',', quotechar='"')
             except csv.Error as e:
                 # Can't open file, remove session variables
                 if 'dataset_id' in request.session: del request.session['dataset_id']
@@ -613,22 +570,30 @@ def import_gloss_csv(request):
                 # Set a message to be shown so that the user knows what is going on.
                 messages.add_message(request, messages.ERROR, _('Cannot open the file:' + str(e)))
                 return render(request, "dictionary/import_gloss_csv.html", {'import_csv_form': CSVUploadForm()}, )
+
             else:
-                for row in glossreader:
-                    if glossreader.line_num == 1:
-                        # Skip first line of CSV file.
-                        continue
-                    try:
-                        # Find out if the gloss already exists, if it does add to list of glosses not to be added.
-                        gloss = Gloss.objects.get(dataset=dataset, idgloss=row[0])
-                        glosses_exists.append(gloss)
-                    except Gloss.DoesNotExist:
-                        # If gloss is not already in list, add glossdata to list of glosses to be added as a tuple.
-                        if not any(row[0] in s for s in glosses_new):
-                            glosses_new.append(tuple(row))
-                    except IndexError:
-                        # If row[0] does not exist, continue to next iteration of loop.
-                        continue
+                try:
+                    for row in glossreader:
+                        if glossreader.line_num == 1:
+                            # Skip first line of CSV file.
+                            continue
+                        try:
+                            # Find out if the gloss already exists, if it does add to list of glosses not to be added.
+                            gloss = Gloss.objects.get(dataset=dataset, idgloss=row[0])
+                            glosses_exists.append(gloss)
+                        except Gloss.DoesNotExist:
+                            # If gloss is not already in list, add glossdata to list of glosses to be added as a tuple.
+                            if not any(row[0] in s for s in glosses_new):
+                                glosses_new.append(tuple(row))
+                        except IndexError:
+                            # If row[0] does not exist, continue to next iteration of loop.
+                            continue
+
+                except UnicodeDecodeError as e:
+                    # File is not UTF-8 encoded.
+                    messages.add_message(request, messages.ERROR, _('File must be UTF-8 encoded!'))
+                    return render(request, "dictionary/import_gloss_csv.html", {'import_csv_form': CSVUploadForm()}, )
+
                 # Store dataset's id and the list of glosses to be added in session.
                 request.session['dataset_id'] = dataset.id
                 request.session['glosses_new'] = glosses_new
@@ -642,7 +607,7 @@ def import_gloss_csv(request):
             # If form is not valid, set a error message and return to the original form.
             messages.add_message(request, messages.ERROR, _('The provided CSV-file does not meet the requirements '
                                                             'or there is some other problem.'))
-            return render(request, "dictionary/import_gloss_csv.html", {'import_csv_form': CSVUploadForm()}, )
+            return render(request, "dictionary/import_gloss_csv.html", {'import_csv_form': form}, )
     else:
         # If request type is not POST, return to the original form.
         csv_form = CSVUploadForm()
@@ -735,5 +700,7 @@ def gloss_relation(request):
             if "HTTP_REFERER" in request.META:
                 return redirect(request.META["HTTP_REFERER"])
             return redirect("/")
-        from django.http import HttpResponseBadRequest
+
         return HttpResponseBadRequest("Bad request.")
+
+    return HttpResponseForbidden()

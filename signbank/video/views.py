@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import json
 from base64 import b64decode
-from os.path import splitext
+
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
@@ -11,48 +11,32 @@ from django.core.exceptions import PermissionDenied
 from django.core.files.base import ContentFile
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotAllowed
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import ugettext as _
+from django.core.exceptions import ValidationError
 
 from guardian.shortcuts import get_objects_for_user, get_perms
 from .models import GlossVideo
-from .forms import VideoUploadForGlossForm, VideoUploadAddGlossForm, MultipleVideoUploadForm
+from .forms import GlossVideoForGlossForm, GlossVideoForm, MultipleVideoUploadForm
 from ..dictionary.models import Gloss, Dataset
-from .forms import UpdateGlossVideoForm, PosterUpload
+from .forms import GlossVideoUpdateForm, GlossVideoPosterForm
 
 
-def addvideo(request, gloss_id, redirect_url):
+def upload_glossvideo(request):
     """Add a video from form and process the upload"""
     if request.method == 'POST':
-        form = VideoUploadAddGlossForm(request.POST, request.FILES)
+        form = GlossVideoForm(request.POST, request.FILES)
         if form.is_valid():
-            gloss = get_object_or_404(Gloss, pk=gloss_id)
 
-            if 'view_dataset' not in get_perms(request.user, gloss.dataset):
-                # If user has no permissions to dataset, raise PermissionDenied to show 403 template.
-                msg = _("You do not have permissions to upload videos for this lexicon.")
-                messages.error(request, msg)
-                raise PermissionDenied(msg)
+            videofile = form.cleaned_data['videofile']
+            glossvideo = GlossVideo(videofile=videofile)
+            title = form.cleaned_data['title']
+            if title:  # if video_title was provided in the form, use it
+                glossvideo.title = form.cleaned_data['title']
+            glossvideo.save()
 
-            vfile = form.cleaned_data['videofile']
-            video = GlossVideo(gloss=gloss)
-            video_title = form.cleaned_data['video_title']
-            if vfile: # If there is no video file, we don't want to create a glossvideo.
-                if video_title: # if video_title was provided in the form, use it
-                    video.title = form.cleaned_data['video_title']
-                else: # Otherwise use the videos filename as the title.
-                    video.title = vfile.name
-            # Save the GlossVideo to get a primary key
-            video.save()
-
-            # Construct a filename for the video, because it doesn't have a path yet.
-            vfile.name = GlossVideo.create_filename(gloss.idgloss, gloss.pk, video.pk, splitext(vfile.name)[1])
-            video.videofile = vfile
-            video.save()
-
-            # TODO: provide some feedback that it worked (if immediate display of video isn't working)
-
-            return redirect(redirect_url)
+            return redirect(reverse('video:upload_glossvideo'))
 
     # if we can't process the form, just redirect back to the
     # referring page, should just be the case of hitting
@@ -65,16 +49,15 @@ def addvideo(request, gloss_id, redirect_url):
     return redirect(url)
 
 
-addvideo_view = permission_required('video.add_glossvideo')(addvideo)
+upload_glossvideo_view = permission_required('video.add_glossvideo')(upload_glossvideo)
 
 
-def addvideo_gloss(request):
+def upload_glossvideo_gloss(request):
     """Add a video from form and process the upload"""
     if request.method == 'POST':
-        form = VideoUploadForGlossForm(request.POST, request.FILES)
+        form = GlossVideoForGlossForm(request.POST, request.FILES)
         if form.is_valid():
-            gloss_id = form.cleaned_data['gloss_id']
-            gloss = get_object_or_404(Gloss, pk=gloss_id)
+            gloss = form.cleaned_data['gloss']
 
             if 'view_dataset' not in get_perms(request.user, gloss.dataset):
                 # If user has no permissions to dataset, raise PermissionDenied to show 403 template.
@@ -82,58 +65,48 @@ def addvideo_gloss(request):
                 messages.error(request, msg)
                 raise PermissionDenied(msg)
 
-            vfile = form.cleaned_data['videofile']
-            video = GlossVideo(gloss=gloss)
+            videofile = form.cleaned_data['videofile']
+            video = GlossVideo(gloss=gloss, videofile=videofile)
 
-            video_title = form.cleaned_data['video_title']
-            if vfile:  # If there is no video file, we don't want to create a glossvideo.
-                if video_title:  # if video_title was provided in the form, use it
-                    video.title = form.cleaned_data['video_title']
-                else:  # Otherwise use the videos filename as the title.
-                    video.title = vfile.name
-
-            # Construct a filename for the video, because it doesn't have a path yet.
-            vfile.name = GlossVideo.create_filename(gloss.idgloss, gloss.pk, video.pk, splitext(vfile.name)[1])
-            video.videofile = vfile
+            video_title = form.cleaned_data['title']
+            if video_title:  # if video_title was provided in the form, use it
+                video.title = video_title
+            else:  # Otherwise use the videos filename as the title.
+                video.title = videofile.name
             video.save()
-
-            # TODO: provide some feedback that it worked (if immediate display of video isn't working)
 
             redirect_url = form.cleaned_data['redirect']
-
             return redirect(redirect_url)
 
-    # if we can't process the form, just redirect back to the
-    # referring page, should just be the case of hitting
-    # Upload without choosing a file but could be
-    # a malicious request, if no referrer, go back to root
     if 'HTTP_REFERER' in request.META:
         url = request.META['HTTP_REFERER']
     else:
         url = '/'
-
     return redirect(url)
 
 
-addvideo_gloss_view = permission_required('video.add_glossvideo')(addvideo_gloss)
+upload_glossvideo_gloss_view = permission_required('video.add_glossvideo')(upload_glossvideo_gloss)
 
 
 def add_recorded_video_view(request):
     """Add video that is recorder in the interface."""
     if request.method == 'POST':
         # Load the data into the form
-        form = VideoUploadForGlossForm(request.POST, request.FILES)
+        form = GlossVideoForGlossForm(request.POST, request.FILES)
         if form.is_valid():
-            gloss = get_object_or_404(Gloss, pk=form.cleaned_data['gloss_id'])
+            gloss = form.cleaned_data['gloss']
             if 'view_dataset' not in get_perms(request.user, gloss.dataset):
                 # If user has no permissions to dataset, raise PermissionDenied to show 403 template.
                 msg = _("You do not have permissions to change order for videos of this lexicon.")
                 messages.error(request, msg)
                 raise PermissionDenied(msg)
 
-            vidfile = form.cleaned_data['videofile']
-            if vidfile:
-                glossvid = GlossVideo.objects.create(gloss=gloss, videofile=vidfile, dataset=gloss.dataset)
+            videofile = form.cleaned_data['videofile']
+            if videofile:
+                glossvid = GlossVideo(gloss=gloss, videofile=videofile, dataset=gloss.dataset)
+                if form.cleaned_data['webcam'] and form.cleaned_data['webcam'] is True:
+                    glossvid.is_public = False
+                glossvid.save()
                 # Return the created GlossVideos id/pk, so that it can be used to link to the uploaded video.
                 return HttpResponse(json.dumps({'videoid': glossvid.pk}), content_type='application/json')
 
@@ -145,7 +118,7 @@ def add_poster(request):
     """Process upload of poster file."""
     if request.method == 'POST':
         # Load the data into the form
-        form = PosterUpload(request.POST)
+        form = GlossVideoPosterForm(request.POST)
 
         # Process the image data submitted as base64 encoded.
         img = form.data['posterfile']
@@ -185,7 +158,7 @@ class AddVideosView(FormView):
     """View for multiple video file upload. These videos will have no connection to glosses."""
     form_class = MultipleVideoUploadForm
     template_name = 'addvideos.html'
-    success_url = '/video/add/'
+    success_url = reverse_lazy('video:upload_videos')
 
     def get_form(self, formclass=None):
         form = super(AddVideosView, self).get_form()
@@ -207,9 +180,26 @@ class AddVideosView(FormView):
                 messages.error(request, msg)
                 raise PermissionDenied(msg)
 
+            upload_errors = list()
             for f in files:
-                GlossVideo.objects.create(videofile=f, dataset=dataset, title=f.name)
+                try:
+                    GlossVideo.objects.create(videofile=f, dataset=dataset, title=f.name)
+                except ValidationError:
+                    upload_errors.append(f.name)
+                except PermissionDenied:
+                    msg = _("You don't have permissions to upload videos.")
+                    messages.error(request, msg)
+
+            if len(upload_errors) < len(files):
+                # If there are less errors than files, print the count of successful uploads.
+                msg = str(len(files) - len(upload_errors)) + " " + _("videos were successfully uploaded.")
+                messages.success(request, msg)
+            if len(upload_errors) > 0:
+                msg = _("Could not upload the following file(s)") + " ( " + str(len(upload_errors)) + " ): " \
+                      + str(upload_errors)
+                messages.error(request, msg)
             return self.form_valid(form)
+
         else:
             return self.form_invalid(form)
 
@@ -229,7 +219,7 @@ class UploadedGlossvideosListView(ListView):
         page = self.request.GET.get('page')
         context['page'] = page
         # Set get params in form
-        form = UpdateGlossVideoForm(self.request.GET)
+        form = GlossVideoUpdateForm(self.request.GET)
         allowed_datasets = get_objects_for_user(self.request.user, 'dictionary.view_dataset')
         # Make sure we only list datasets the user has permissions to.
         form.fields["dataset"].queryset = form.fields["dataset"].queryset.filter(
@@ -273,7 +263,7 @@ uploaded_glossvideos_listview = permission_required('video.change_glossvideo')(U
 
 
 def update_glossvideo(request):
-    """Here we process the post request for updating a glossvideo."""
+    """Process the post request for updating a glossvideo."""
     if request.is_ajax():
         # If request is AJAX, follow this procedure.
         data = json.loads(request.body.decode('utf-8'))
@@ -286,6 +276,8 @@ def update_glossvideo(request):
                         glossvideo = GlossVideo.objects.get(pk=item['glossvideo'])
                         glossvideo.gloss = Gloss.objects.get(pk=item['gloss'])
                         if 'view_dataset' in get_perms(request.user, glossvideo.gloss.dataset):
+                            # Set version number.
+                            glossvideo.version = glossvideo.next_version()
                             # Save if user has permission to add videos to the selected dataset.
                             glossvideo.save()
                         else:
@@ -313,6 +305,8 @@ def update_glossvideo(request):
                     glossvideo.gloss = Gloss.objects.get(pk=gloss_id)
                     # Make sure that the user has rights to edit this datasets glosses.
                     if 'view_dataset' in get_perms(request.user, glossvideo.gloss.dataset):
+                        # Set version number.
+                        glossvideo.version = glossvideo.next_version()
                         # Save if user has permission to add videos to the selected dataset.
                         glossvideo.save()
                     else:
@@ -323,7 +317,7 @@ def update_glossvideo(request):
 
     if "HTTP_REFERER" in request.META:
         return redirect(request.META["HTTP_REFERER"])
-    return redirect("/")
+    return redirect(reverse('video:manage_videos'))
 
 
 update_glossvideo_view = permission_required('video.change_glossvideo')(update_glossvideo)
@@ -353,6 +347,7 @@ def video(request, videoid):
 
     return redirect(video)
 
+
 video_view = video
 
 
@@ -367,37 +362,46 @@ def change_glossvideo_order(request):
         messages.error(request, msg)
         raise PermissionDenied(msg)
 
-    videolist = list(GlossVideo.objects.filter(gloss=video.gloss).order_by('version'))
-    index = videolist.index(video)
-
-    # Set the new index based on the direction we want the move to happen to.
-    if direction == "up":
-        if index < 1:
-            newindex = 0
-        else:
-            newindex = index-1
-    if direction == "down":
-        newindex = index+1
-
-    try:
-        # Move object: Insert object into newindex and remove it from old index.
-        videolist.insert(newindex, videolist.pop(index))
-        # Save the list indexes into the 'version' field of objects.
-        for i, vid in enumerate(videolist):
-            vid.version = i
-            vid.save()
-    except ValueError:
-        # If index is out of lists range.
-        pass
-    except NameError:
-        # In case 'direction' is not defined.
-        pass
+    if direction == "up" or "down":
+        # Move video within glosses glossvideos.
+        video.move_video_version(direction)
 
     referer = request.META.get("HTTP_REFERER")
     if "?edit" in referer:
         return redirect(referer)
     else:
-        return redirect(request.META.get("HTTP_REFERER") + "?edit")
+        return redirect(referer + "?edit")
 
 
 change_glossvideo_order_view = permission_required('video.change_glossvideo')(change_glossvideo_order)
+
+
+def change_glossvideo_publicity(request):
+    """Moves selected glossvideos position within glosses glossvideos."""
+    if request.method == 'POST':
+        videoid = request.POST["videoid"]
+        is_public = request.POST["is_public"]
+        video = GlossVideo.objects.get(pk=videoid)
+        if 'view_dataset' not in get_perms(request.user, video.gloss.dataset):
+            # If user has no permissions to dataset, raise PermissionDenied to show 403 template.
+            msg = _("You do not have permissions to change order of videos for this lexicon.")
+            messages.error(request, msg)
+            raise PermissionDenied(msg)
+
+        video.is_public = is_public
+        video.save()
+
+        if request.is_ajax():
+            return HttpResponse(status=200)
+
+    referer = request.META.get("HTTP_REFERER")
+    if referer:
+        if "?edit" in referer:
+            return redirect(referer)
+        else:
+            return redirect(referer + "?edit")
+    else:
+        return HttpResponseNotAllowed(['POST'])
+
+
+change_glossvideo_publicity_view = permission_required('video.change_glossvideo')(change_glossvideo_publicity)

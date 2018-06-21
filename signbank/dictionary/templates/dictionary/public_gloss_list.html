@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load bootstrap3 %}
 {% load staticfiles %}
+{% block bootstrap3_title %}{% blocktrans %}Search Signs{% endblocktrans %} | {% endblock %}
 {% block extrajs %}
 <script src="{% static "js/mark.min.js" %}"></script>
 <script>
@@ -10,19 +11,24 @@ This is not a bullet proof solution, especially when it comes to word boundaries
 Javascript does not generally support UTF-8 word boundaries.
 */
 $( document ).ready(function() {
-    var kwdToMark = "{{request.GET.search}}";
-    if (kwdToMark.length > 1) {
+    var glossToMark = "{{request.GET.gloss}}";
+    var keywordToMark = "{{request.GET.keyword}}"
+    if (glossToMark.length > 1) {
         var markGloss = new Mark(document.querySelectorAll("h3.gloss-idgloss"));
-        var markKeywords = new Mark(document.querySelectorAll("span.gloss-keywords"));
-        var markKeywordsOptions = {"exclude": ["em", ".ignore"],};
-        var glossRE = new RegExp("^" + kwdToMark, "gmi");
-        var keywordRE = new RegExp("(\\s" + kwdToMark + ")", "gmi");
+        var glossRE = new RegExp("^" + glossToMark, "gmi");
 
         markGloss.unmark({
             done: function(){
                 markGloss.markRegExp(glossRE);
             },
         });
+
+    }
+    if (keywordToMark.length > 1) {
+        var markKeywords = new Mark(document.querySelectorAll("span.gloss-keywords"));
+        var markKeywordsOptions = {"exclude": ["em", ".ignore"],};
+        var keywordRE = new RegExp("(\\b" + keywordToMark + ")", "gmi");
+
         markKeywords.unmark({
             done: function(){
                 markKeywords.markRegExp(keywordRE, markKeywordsOptions);
@@ -33,59 +39,62 @@ $( document ).ready(function() {
 </script>
 {% endblock %}
 {% block content %}
-{% get_language_info for LANGUAGE_CODE as lang %}
 <div class="row">
     <div class="col-md-12">
-        <h2>{% blocktrans %}Search signs{% endblocktrans %}
-            <small>{% blocktrans %}By gloss or translation equivalents{% endblocktrans %}
-                <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#collapseHelp" aria-expanded="false" aria-controls="collapseHelp">
+        <h3>{% blocktrans %}Search signs{% endblocktrans %}
+          <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseHelp" aria-expanded="false" aria-controls="collapseHelp">
           {% blocktrans %}Help{% endblocktrans %} <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
-        </button></small></h2>
+        </button></h3>
 
         <div class="collapse" id="collapseHelp">
-          <div class="well">
-<p>
-{% blocktrans %}This Signbank holds sign language signs in multiple different sign languages.
-    Search the signs by translations of the signs (or by an identifying name "gloss"), the results are matched from the
-    beginning of a word.
-    For quick browsing of signs a list of starting letters is provided in the top of the page.
-    Find the available sign languages on top of the search box, select one to narrow down your search results.
-    Filter the results even further by selecting one or multiple lexicons under the search box, which represent a set
-    of signs maintained by a given organisation.{% endblocktrans %}
-</p>
-<p>
-{% blocktrans %}To play a video, click on top of the video (image), and pause the video by clicking on it again.
-    To see more detailed information about a sign (gloss), click on the text on top of a video box in the
-    search results. Some signs have more than one video, the additional videos can be viewed from the detail
-    information page by clicking on the sign title.
-    {% endblocktrans %}
-</p>
+          <div class="well well-sm">
+          <section>
+            <header>
+              <h4>{% blocktrans %}How to use the search page?{% endblocktrans %}</h4>
+            </header>
+            <p>
+            {% static 'img/instructions/searchpage_instructions_fi-compressor.png' as ins_full_fi %}
+            {% static 'img/instructions/searchpage_instructions_fi_1140px-compressor.png' as ins_small_fi %}
+            {% static 'img/instructions/searchpage_instructions_en-compressor.png' as ins_en %}
+              <a href="{% if LANGUAGE_CODE == 'fi' %}{{ins_full_fi}}{% else %}{{ins_en}}{% endif %}" target="_blank">
+              <img src="{% if LANGUAGE_CODE == 'fi' %}{{ins_small_fi}}{% else %}{{ins_en}}{% endif %}"
+                   alt="{% blocktrans %}Instructions for how to use the search page.{% endblocktrans %}"
+                   class="img-responsive img-thumbnail">
+              </a>
+            </p>
+          </section>
           </div>
         </div>
-        <strong>{% blocktrans %}Browse:{% endblocktrans %}</strong>
+        <strong>{% blocktrans %}Browse glosses:{% endblocktrans %}</strong>
         <div class="btn-group" role="group" aria-label="Browse">
         {% for letter in first_letters %}
-            <a role="button" class="btn btn-default" href="?lang={{request.GET.lang|urlencode}}&search={{letter.0|urlencode}}
-               {% if request.GET.dataset %}&dataset={{request.GET.dataset|urlencode}}{% endif %}">{{letter.0}}</a>
+            <a role="button" class="btn btn-default" href="?gloss={{letter.0|urlencode}}{% if request.GET.lang %}&lang={{request.GET.lang|urlencode}}{% endif %}{% if request.GET.dataset %}{% for ds in datasets %}&dataset={{ds|urlencode}}{% endfor %}{% endif %}">{{letter.0}}</a>
         {% empty %}
             {# Put nothing here if results set is empty #}
         {% endfor %}
         </div>
         <hr style="margin-top:0px;margin-bottom:8px;">
+
+        {% if signlanguage_count and signlanguage_count > 1 %}
         <ul class="nav nav-pills" style="background-color:#fcfdff;">
             <li role="presentation" {% if 'lang' not in request.GET or request.GET.lang == '' %}class="active"{% endif %}>
-            <a href="?lang=&search={{request.GET.search|urlencode}}">{% blocktrans %}All sign languages{% endblocktrans %}</a></li>
+            <a href="?lang=&gloss={{request.GET.gloss|urlencode}}&keyword={{request.GET.keyword|urlencode}}">{% blocktrans %}All sign languages{% endblocktrans %}</a></li>
             {% for signlang in signlanguages %}
             <li role="presentation" {% if request.GET.lang == signlang.language_code_3char %}class="active"{% endif %}>
-                <a href="?lang={{signlang.language_code_3char|urlencode}}&search={{request.GET.search|urlencode}}">{{ signlang.name }}</a></li>
+                <a href="?lang={{signlang.language_code_3char|urlencode}}&gloss={{request.GET.gloss|urlencode}}&keyword={{request.GET.keyword|urlencode}}">{{ signlang.name }}</a></li>
             {% endfor %}
         </ul>
+        {% endif %}
+
         {# Search form #}
         <div class="panel panel-default">
             <div class="panel-body">
             <form action="{% url 'dictionary:public_gloss_list' %}" method="get" class="form">
+                {% if request.GET.lang and signlanguage_count > 1 %}
                 <input type="hidden" name="lang" value="{{request.GET.lang|urlencode}}">
-                {% bootstrap_field searchform.search bound_css_class="not-bound" %}
+                {% endif %}
+                {% bootstrap_field searchform.gloss bound_css_class="not-bound" %}
+                {% bootstrap_field searchform.keyword bound_css_class="not-bound" %}
                 <div class="form-group">
                     {% bootstrap_label searchform.dataset.label label_for="id_dataset" label_class="control-label" %}
                     <div id="id_dataset">
@@ -95,9 +104,33 @@ $( document ).ready(function() {
                     </div>
                     {% endfor %}
                         <div class="help-block hidden-xs" style="display:inline-block;">{{searchform.dataset.help_text}}</div>
+                        <div style="display:inline-block;">
+                            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseHelpLexicon" aria-expanded="false" aria-controls="collapseHelpLexicon">
+                              {% blocktrans %}Lexicons{% endblocktrans %} <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                        <div class="collapse" id="collapseHelpLexicon">
+                            <div class="well well-sm">
+                            <section>
+                                <header>
+                                  <h4>{% blocktrans %}Description of the lexicons{% endblocktrans %}</h4>
+                                </header>
+                                {% for lexicon in lexicons %}
+                                <article>
+                                    <header><h5><strong><span class="dataset-{{lexicon.id}}-color label label-default">{{lexicon.public_name}}</span></strong></h5></header>
+                                    <p>{% autoescape off %}{{lexicon.description}}{% endautoescape %}</p>
+                                    {% if user.is_authenticated %}
+                                    <p>{% blocktrans %}ELAN ECV{% endblocktrans %}:
+                                        <a href="http://{{ request.get_host }}{% url 'dictionary:public_gloss_list_xml' lexicon.id %}">http://{{ request.get_host }}{% url 'dictionary:public_gloss_list_xml' lexicon.id %}</a></p>
+                                    {% endif %}
+                                </article>
+                                {% endfor %}
+                            </section>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" style="min-width:100px;">
                         {% blocktrans context "public_search" %}Search{% endblocktrans %}
                     </button>
             </form>
@@ -106,7 +139,13 @@ $( document ).ready(function() {
     </div>
 </div>
 <div class="container-fluid">
+        <div class="pagination">
+
+    {% include "dictionary/paginate.html" %}
+
+    </div>
 <div class="row">
+
     {% for obj in object_list %}
     <div class="col-md-3 col-sm-6 col-xs-12 col-public-list">
         <div class="panel panel-default">
@@ -117,7 +156,7 @@ $( document ).ready(function() {
                         <span style="color:black;"><span class="glyphicon glyphicon-film" aria-hidden="true"
                               title="{% blocktrans context "videocount" %}Videos{% endblocktrans %}"></span>
                         {{obj.glossvideo_set.count}}</span>
-                        <span class="dataset-{{obj.dataset.id}}-color label label-default" style="float:right;margin-top:2px;">{{obj.dataset}}</span>
+                        <span class="dataset-{{obj.dataset.id}}-color label label-default" style="float:right;margin-top:2px;">{{obj.dataset.public_name}}</span>
                     </a>
                     </div>
                 </div>
@@ -140,21 +179,14 @@ $( document ).ready(function() {
             {% endif %}
             </div>
             <div class="panel-footer">
-            <h4>{% blocktrans context "publicglosslist" %}Translations{% endblocktrans %} ({{ lang.name_local }}):</h4>
-            <span class="gloss-keywords">
-            {% if obj.glosstranslations_set.exists %}
-                {{ obj.glosstranslations_set.all.0 }}
-            {% else %}
-            {% for trans in obj.translation_set.all %}
-                {{ trans.keyword }},
-                {% if forloop.last %}
-                {{ trans.keyword }}
-                {% endif %}
+            {% for glosstranslations in obj.glosstranslations_set.all %}
+                <h5><strong>{% blocktrans context "publicglosslist" %}Translation equivalents{% endblocktrans %} ({{ glosstranslations.language }}):</strong></h5>
+                <span class="gloss-keywords">
+                    {{glosstranslations}}
+                </span>
             {% empty %}
-                <em>{% blocktrans %}No translations in{% endblocktrans %} {{ lang.name_local }}.</em>
+                <em>{% blocktrans %}No translation equivalents yet{% endblocktrans %}.</em>
             {% endfor %}
-            {% endif %}
-            </span>
             </div>
         </div>
     </div>
@@ -168,35 +200,7 @@ $( document ).ready(function() {
     {% endfor %}
 </div>
 <div class="pagination">
-    <span class="step-links">
-    <ul class='pagination pagination-sm'>
-        {% if page_obj.has_previous %}
-            <li><a href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% ifnotequal key 'page' %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}">&laquo;</a></li>
-        {% endif %}
-        {% if  page_obj.number > 10 %}
-        <li><a>...</a></li>
-        {% endif %}
-
-        {% for p in page_obj.paginator.page_range %}
-            {% if p < page_obj.number|add:"10" and  p > page_obj.number|add:"-10" %}
-            <li {% if p == page_obj.number %}class='active'{% endif %}>
-            <a href="?page={{ p }}{% for key,value in request.GET.items %}{% if not key == 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{% if p == 0 %}Start{% else %}{{p}}{% endif %}</a>
-            </li>
-            {% endif %}
-        {% endfor %}
-
-        {% if page_obj.paginator.num_pages > page_obj.number|add:"10" %}
-        <li><a>...</a></li>
-        <li>
-            <a href="?page={{ page_obj.paginator.num_pages }}{% for key,value in request.GET.items %}{% if not key == 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{page_obj.paginator.num_pages}}</a>
-        </li>
-        {% endif %}
-
-        {% if page_obj.has_next %}
-            <li><a href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if not key == 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&raquo;</a></li>
-        {% endif %}
-    </ul>
-    </span>
+    {% include "dictionary/paginate.html" %}
 </div>
 </div>
 {% endblock %}

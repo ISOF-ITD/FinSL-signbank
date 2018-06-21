@@ -43,7 +43,7 @@ $( document ).ready(function() {
 {#        http://blog.appliedinformaticsinc.com/autocomplete-input-field-in-django-template-with-jquery-ui/        #}
 <script type="text/javascript">
   $( function() {
-    $( "#id_search" ).autocomplete({
+    $( "#id_keyword" ).autocomplete({
             source: '{% url 'dictionary:gloss_autocomplete' %}', minLength: 2,
     });
   } );
@@ -104,7 +104,7 @@ $( document ).ready(function() {
                 </div>
 
                 <input type="hidden" name="lang" value="{{request.GET.lang|urlencode}}">
-                {% bootstrap_field searchform.search bound_css_class="not-bound" %}
+                {% bootstrap_field searchform.keyword bound_css_class="not-bound" %}
                 <div class="form-group">
 {#                    {% bootstrap_label searchform.dataset.label label_for="id_dataset" label_class="control-label" %}#}
 {#                    <div id="id_dataset">#}

@@ -2,23 +2,49 @@
 from __future__ import unicode_literals
 
 from django.conf.urls import url
-from django.contrib.auth.decorators import permission_required
+from django.views.generic.base import RedirectView
+from django.contrib.auth.decorators import permission_required, login_required
 # Views
 from . import adminviews
 from . import publicviews
 from . import update
 from . import delete
 from . import views
-from . import tagviews
 
 urlpatterns = [
-    # Gloss search url for the menu search field(s)
-    url(r'^search/$', permission_required('dictionary.search_gloss')
-    (adminviews.GlossListView.as_view()), name='menusearch'),
+    # Public views for dictionary
+    url(r'^$', publicviews.GlossListPublicView.as_view(), name='public_gloss_list'),
+    url(r'^gloss/(?P<pk>\d+)', publicviews.GlossDetailPublicView.as_view(), name='public_gloss_view'),
+    # Support old URLs, redirect them to new URLs.
+    url(r'^public/gloss/$',
+        RedirectView.as_view(pattern_name='dictionary:public_gloss_list', permanent=False)),
+    url(r'^public/gloss/(?P<pk>\d+)',
+        RedirectView.as_view(pattern_name='dictionary:public_gloss_view', permanent=False)),
+
+    # Advanced search page
+    url(r'^advanced/$', permission_required('dictionary.search_gloss')
+        (adminviews.GlossListView.as_view()), name='admin_gloss_list'),
+
+    # Main views for dictionary search page and gloss detail page, these used to be 'admin' views
+    url(r'^advanced/list/$', permission_required('dictionary.search_gloss')(adminviews.GlossListView.as_view())),
+    url(r'^advanced/gloss/(?P<pk>\d+)', permission_required('dictionary.search_gloss')
+    (adminviews.GlossDetailView.as_view()), name='admin_gloss_view'),
 
     # GlossRelation search page
-    url(r'^search/glossrelation/$', permission_required('dictionary.search_gloss')
+    url(r'^advanced/glossrelation/$', permission_required('dictionary.search_gloss')
     (adminviews.GlossRelationListView.as_view()), name='search_glossrelation'),
+    # Redirect old URL
+    url(r'^search/glossrelation/$', permission_required('dictionary.search_gloss')
+    (RedirectView.as_view(pattern_name='dictionary:search_glossrelation', permanent=False))),
+
+    # Manage lexicons
+    url(r'^lexicons/$', login_required(views.ManageLexiconsListView.as_view()), name='manage_lexicons'),
+    # Apply for lexicon permissions
+    url(r'^lexicons/apply/$', login_required(views.ApplyLexiconPermissionsFormView.as_view()),
+        name='apply_lexicon_permissions'),
+
+    # Create
+    url(r'^advanced/gloss/create/$', views.create_gloss, name='create_gloss'),
 
     # Urls used to update data
     url(r'^update/gloss/(?P<glossid>\d+)$',
@@ -31,54 +57,49 @@ urlpatterns = [
         update.add_relationtoforeignsign, name='add_relationtoforeignsign'),
     url(r'^update/morphologydefinition/$',
         update.add_morphology_definition, name='add_morphologydefinition'),
-    url(r'^update/gloss/',
-        update.add_gloss, name='add_gloss'),
     url(r'^update/glossrelation/',
         update.gloss_relation, name='add_glossrelation'),
 
-    url(r'^delete/glossurl/(?P<glossurl>\d+)$',
+    url(r'^advanced/delete/glossurl/(?P<glossurl>\d+)$',
         delete.glossurl, name='delete_glossurl'),
 
     # CSV import urls
-    url(r'^import/csv/$',
+    url(r'^advanced/import/csv/$',
         update.import_gloss_csv, name='import_gloss_csv'),
-    url(r'^import/csv/confirm/$',
+    url(r'^advanced/import/csv/confirm/$',
         update.confirm_import_gloss_csv, name='confirm_import_gloss_csv'),
 
     # AJAX urls
     url(r'^ajax/keyword/(?P<prefix>.*)$',
         views.keyword_value_list),
-    url(r'^ajax/tags/$',
-        tagviews.taglist_json),
     url(r'^ajax/gloss/(?P<prefix>.*)$',
         adminviews.gloss_ajax_complete, name='gloss_complete'),
     url(r'^ajax/searchresults/$',
         adminviews.gloss_ajax_search_results, name='ajax_search_results'),
 
-    # Url to get list of glosses with selected tags
-    url(r'^tag/(?P<tag>[^/]*)/?$',
-        tagviews.taglist),
-
     # XML ecv (externally controlled vocabulary) export for ELAN
-    url(r'^ecv/(?P<dataset>\d+)$',
+    url(r'^ecv/(?P<dataset_id>\d+)$',
         adminviews.gloss_list_xml, name='gloss_list_xml'),
 
-    # Main views for dictionary search page and gloss detail page, these used to be 'admin' views
-    url(r'^list/$', permission_required('dictionary.search_gloss')(adminviews.GlossListView.as_view())),
-    url(r'^gloss/(?P<pk>\d+)', permission_required('dictionary.search_gloss')
-    (adminviews.GlossDetailView.as_view()), name='admin_gloss_view'),
-
-    # Public views for dictionary
-    url(r'^public/gloss/$', publicviews.GlossListPublicView.as_view(), name='public_gloss_list'),
+    # # Main views for dictionary search page and gloss detail page, these used to be 'admin' views
+    # url(r'^list/$', permission_required('dictionary.search_gloss')(adminviews.GlossListView.as_view())),
+    # url(r'^gloss/(?P<pk>\d+)', permission_required('dictionary.search_gloss')
+    # (adminviews.GlossDetailView.as_view()), name='admin_gloss_view'),
+    #
+    # # Public views for dictionary
+    # url(r'^public/gloss/$', publicviews.GlossListPublicView.as_view(), name='public_gloss_list'),
     url(r'^public/translation/$', publicviews.TranslationListPublicView.as_view(), name='public_translation_list'),
     url(
         r'^gloss-autocomplete/$',
         publicviews.TranslationAutoCompleteView.as_view(),
         name='gloss_autocomplete',
     ),
-    url(r'^public/gloss/(?P<pk>\d+)', publicviews.GlossDetailPublicView.as_view(), name='public_gloss_view'),
+    # url(r'^public/gloss/(?P<pk>\d+)', publicviews.GlossDetailPublicView.as_view(), name='public_gloss_view'),
     url(r'^public/translation/(?P<pk>\d+)', publicviews.TranslationDetailPublicView.as_view(), name='public_gloss_translation_view'),
 
     # A view for the developer to try out some things
     # url(r'^try/$', views.try_code),
+    # Public ECV's
+    url(r'^public-ecv/(?P<dataset_id>\d+)$',
+        publicviews.public_gloss_list_xml, name='public_gloss_list_xml'),
 ]

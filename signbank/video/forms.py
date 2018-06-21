@@ -2,34 +2,46 @@
 from __future__ import unicode_literals
 
 from django import forms
-from django.utils.translation import ugettext_lazy as _
 
 from .models import GlossVideo
 from signbank.dictionary.models import Dataset, Gloss
 
 
-class VideoUploadForm(forms.ModelForm):
-    """Form for video upload"""
+class GlossVideoForm(forms.ModelForm):
+    """Form for GlossVideo."""
+    def __init__(self, *args, **kwargs):
+        super(GlossVideoForm, self).__init__(*args, **kwargs)
+        # Form is used in gloss creation, support creating a gloss without a video.
+        self.fields['videofile'].required = False
+
+    def clean_videofile(self):
+        # Checking here that the file ends with .mp4
+        if self.cleaned_data['videofile'] and not self.cleaned_data['videofile'].name.endswith('.mp4'):
+            raise forms.ValidationError('File is not a mp4. Please upload only mp4 files')
+        return self.cleaned_data['videofile']
 
     class Meta:
         model = GlossVideo
-        exclude = ()
+        fields = ["title", "videofile"]
 
 
-class VideoUploadAddGlossForm(forms.Form):
-    """Form for video upload for a particular gloss"""
-    # Translators: VideoUploadForGlossForm
-    videofile = forms.FileField(label=_("Upload Video"))
-    video_title = forms.CharField(label=_('Glossvideo title'), required=False)
-
-
-class VideoUploadForGlossForm(forms.Form):
-    """Form for video upload for a particular gloss"""
-    # Translators: VideoUploadForGlossForm
-    videofile = forms.FileField(label=_("Upload Video"))
-    video_title = forms.CharField(label=_('Glossvideo title'), required=False)
-    gloss_id = forms.CharField(widget=forms.HiddenInput)
+class GlossVideoForGlossForm(forms.ModelForm):
+    """Form for GlossVideo with Gloss."""
     redirect = forms.CharField(widget=forms.HiddenInput, required=False)
+    webcam = forms.BooleanField(required=False)
+
+    class Meta:
+        model = GlossVideo
+        fields = ["title", "videofile", "gloss"]
+
+
+class GlossVideoUpdateForm(forms.ModelForm):
+    """Form for adding Gloss and Dataset to GlossVideo."""
+    gloss = forms.ModelChoiceField(queryset=Gloss.objects.none(), widget=forms.TextInput)
+
+    class Meta:
+        model = GlossVideo
+        fields = ['dataset', 'videofile', 'gloss']
 
 
 class MultipleVideoUploadForm(forms.Form):
@@ -42,16 +54,7 @@ class MultipleVideoUploadForm(forms.Form):
         return data
 
 
-class UpdateGlossVideoForm(forms.ModelForm):
-
-    gloss = forms.ModelChoiceField(queryset=Gloss.objects.all(), widget=forms.TextInput)
-
-    class Meta:
-        model = GlossVideo
-        fields = ['dataset', 'videofile', 'gloss']
-
-
-class PosterUpload(forms.ModelForm):
+class GlossVideoPosterForm(forms.ModelForm):
     class Meta:
         model = GlossVideo
         fields = ['posterfile', 'id']
