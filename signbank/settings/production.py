@@ -102,4 +102,4 @@ LOG_FILENAME = "debug.log"
 
 # This points to the wsgi.py file that is used in tools.py to make web server "reload" the application.
 # WSGI_FILE = '/home/signbank/signbank-fi/signbank/wsgi.py'
-WSGI_FILE = '/var/www/django/teckenlistor/signbank/wsgi.py'
+WSGI_FILE = '/var/www/django/teckenlistan/signbank/wsgi.py'
