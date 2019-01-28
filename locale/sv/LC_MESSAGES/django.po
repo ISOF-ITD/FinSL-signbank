@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-23 14:02+0100\n"
+"POT-Creation-Date: 2019-01-28 09:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -163,8 +162,7 @@ msgstr ""
 
 #. Translators: GlossSearchForm label
 #: .\signbank\dictionary\forms.py:77 .\signbank\dictionary\forms.py:276
-#: .\signbank\dictionary\forms.py:293 .\signbank\dictionary\models.py:179
-#: .\signbank\dictionary\publicviews.py:236
+#: .\signbank\dictionary\models.py:179 .\signbank\dictionary\publicviews.py:280
 msgid "Sign language"
 msgstr ""
 
@@ -177,7 +175,7 @@ msgstr ""
 #. Translators: Gloss field: idgloss, verbose name
 #: .\signbank\dictionary\forms.py:82 .\signbank\dictionary\forms.py:174
 #: .\signbank\dictionary\models.py:263 .\signbank\dictionary\models.py:288
-#: .\signbank\dictionary\publicviews.py:231
+#: .\signbank\dictionary\publicviews.py:275
 #: .\signbank\dictionary\templates\dictionary\admin_gloss_list.html:182
 #: .\signbank\dictionary\templates\dictionary\gloss_detail_advanced.html:87
 #: .\signbank\video\models.py:44
@@ -281,18 +279,16 @@ msgid "Search gloss"
 msgstr "Sök tecken"
 
 #: .\signbank\dictionary\forms.py:266 .\signbank\dictionary\forms.py:267
-#: .\signbank\dictionary\forms.py:283 .\signbank\dictionary\forms.py:284
 msgid "Search translation equivalent"
 msgstr "Svenskt ord"
 
-#: .\signbank\dictionary\forms.py:275 .\signbank\dictionary\forms.py:292
+#: .\signbank\dictionary\forms.py:275
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list.html:81
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list_tagsvideo.html:86
 msgid "All sign languages"
 msgstr "Alla teckenspråk"
 
-#: .\signbank\dictionary\forms.py:278 .\signbank\dictionary\forms.py:295
-#| msgid "You can limit the search to these lexicons."
+#: .\signbank\dictionary\forms.py:278
 msgid "You can restrict your search to these lexicons"
 msgstr "Du kan begränsa sökningen till dessa lexikon."
 
@@ -349,7 +345,7 @@ msgstr ""
 #: .\signbank\dictionary\models.py:127
 #: .\signbank\dictionary\templates\dictionary\admin_gloss_list.html:186
 #: .\signbank\dictionary\templates\dictionary\public_gloss_detail.html:30
-#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:18
+#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:20
 #: .\templates\infopage.html:50 .\templates\infopage.html:140
 msgid "Translation equivalents"
 msgstr "Översättningar"
@@ -479,10 +475,10 @@ msgid "This is the English name for the Gloss"
 msgstr ""
 
 #. Translators: Gloss models field: notes, verbose name. Notes/Further information about a Gloss.
-#: .\signbank\dictionary\models.py:299 .\signbank\dictionary\publicviews.py:237
+#: .\signbank\dictionary\models.py:299 .\signbank\dictionary\publicviews.py:281
 #: .\signbank\dictionary\templates\dictionary\admin_gloss_list.html:187
 #: .\signbank\dictionary\templates\dictionary\public_gloss_detail.html:42
-#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:31
+#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:34
 msgid "Notes"
 msgstr "Kommentarer"
 
@@ -644,7 +640,7 @@ msgstr ""
 msgid "Morphology definitions"
 msgstr ""
 
-#: .\signbank\dictionary\publicviews.py:236
+#: .\signbank\dictionary\publicviews.py:280
 #: .\signbank\dictionary\templates\dictionary\admin_gloss_list.html:202
 msgid "Videos"
 msgstr ""
@@ -719,7 +715,6 @@ msgstr ""
 
 #. Translators: Title for GlossRelation search page
 #: .\signbank\dictionary\templates\dictionary\admin_glossrelation_list.html:6
-#| msgid "Search signs"
 msgid "Search Gloss Relations"
 msgstr "Sök tecken"
 
@@ -800,8 +795,8 @@ msgstr ""
 #: .\signbank\dictionary\templates\dictionary\public_gloss_detail.html:67
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list.html:175
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list_tagsvideo.html:196
-#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:51
-#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:178
+#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:54
+#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:179
 #: .\signbank\video\templates\uploaded_glossvideos.html:55
 msgid "Your browser does not support the video tag."
 msgstr "Din webbläsare stödjer inte video taggen."
@@ -995,7 +990,7 @@ msgstr ""
 
 #: .\signbank\dictionary\templates\dictionary\gloss_detail_relations.html:27
 #: .\signbank\dictionary\templates\dictionary\public_gloss_detail.html:105
-#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:78
+#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:81
 msgid "No relations."
 msgstr "Inga relationer."
 
@@ -1005,7 +1000,7 @@ msgstr "Lägg till relation"
 
 #: .\signbank\dictionary\templates\dictionary\gloss_detail_relations.html:52
 #: .\signbank\dictionary\templates\dictionary\public_gloss_detail.html:130
-#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:98
+#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:101
 msgid "No reverse relations."
 msgstr "Inga reverserade relationer."
 
@@ -1169,7 +1164,6 @@ msgid "Users with permissions"
 msgstr ""
 
 #: .\signbank\dictionary\templates\dictionary\manage_lexicons.html:43
-#| msgid "You can limit the search to these lexicons."
 msgid "You don't seem to have access to any Lexicons."
 msgstr "Du kan begränsa sökningen till dessa lexikon."
 
@@ -1193,37 +1187,37 @@ msgid "Finnish Signbank"
 msgstr ""
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_detail.html:35
-#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:22
+#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:24
 msgid "<em>No translations.</em>"
 msgstr "<em>Inga översättningar.</em>"
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_detail.html:45
-#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:33
+#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:36
 msgid "No notes."
 msgstr "Inga kommentarer."
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_detail.html:83
-#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:62
+#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:65
 msgid "Relations to glosses"
 msgstr "Relationer till tecken"
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_detail.html:91
-#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:66
+#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:69
 msgid "Relations from this gloss"
 msgstr "Relationer från detta tecken"
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_detail.html:116
-#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:86
+#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:89
 msgid "Relations to this gloss"
 msgstr "Relationer till detta tecken"
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_detail.html:148
-#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:112
+#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:115
 msgid "Show comments"
 msgstr "Visa kommentarer"
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_detail.html:169
-#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:132
+#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:135
 #: .\templates\comments\list.html:47
 msgid "No comments."
 msgstr ""
@@ -1253,7 +1247,6 @@ msgid "Instructions for how to use the search page."
 msgstr ""
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list.html:68
-#| msgid "Browse:"
 msgid "Browse glosses:"
 msgstr "Bläddra:"
 
@@ -1274,31 +1267,29 @@ msgstr "Sök"
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list.html:157
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list_tagsvideo.html:176
-#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:158
+#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:159
 msgctxt "videocount"
 msgid "Videos"
 msgstr "Videor"
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list.html:178
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list_tagsvideo.html:199
-#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:181
+#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:182
 msgid "No video."
 msgstr "Ingen video"
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list.html:183
-#| msgid "Translation equivalents"
 msgctxt "publicglosslist"
 msgid "Translation equivalents"
 msgstr "Översättningar"
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list.html:188
-#| msgid "Translation equivalents"
 msgid "No translation equivalents yet"
 msgstr "Inga översättningar finns"
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list.html:198
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list_tagsvideo.html:226
-#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:208
+#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:209
 msgid "No results."
 msgstr "Inga resultat."
 
@@ -1344,18 +1335,18 @@ msgstr "Bläddra:"
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list_tagsvideo.html:169
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list_tagsvideo.html:214
-#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:151
-#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:196
+#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:152
+#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:197
 msgid "No translations in"
 msgstr "Inga översättningar på"
 
 #: .\signbank\dictionary\templates\dictionary\public_gloss_list_tagsvideo.html:203
-#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:185
+#: .\signbank\dictionary\templates\dictionary\public_translation_list.html:186
 msgctxt "publicglosslist"
 msgid "Translations"
 msgstr "Översättningar"
 
-#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:10
+#: .\signbank\dictionary\templates\dictionary\public_translation_detail.html:11
 #: .\templates\menu.html:32
 msgid "Signs"
 msgstr "Sök tecken"
@@ -1646,8 +1637,6 @@ msgid "Gloss videos"
 msgstr ""
 
 #: .\signbank\video\templates\addvideos.html:3
-#| msgctxt "videocount"
-#| msgid "Videos"
 msgid "Upload Videos"
 msgstr "Videor"
 
