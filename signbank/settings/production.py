@@ -18,7 +18,7 @@ DEBUG = False
 
 # A list of directories where Django looks for translation files.
 LOCALE_PATHS = (
-    '/var/www/django/teckenlistor/locale',
+    '/var/www/django/teckenlistan/locale',
 )
 
 # The absolute path to the directory where collectstatic will collect static files for deployment.
