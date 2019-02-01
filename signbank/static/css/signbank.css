@@ -378,3 +378,8 @@ h3.gloss-idgloss mark {
 span.gloss-keywords mark {
     background-color: #efcccc;
 }
+
+/* ISOF  addition */
+.btn-default {
+    float: right
+}
