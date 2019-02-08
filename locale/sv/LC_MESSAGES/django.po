@@ -1375,7 +1375,7 @@ msgid ""
 msgstr ""
 "Skriv in ordet du söker i rutan för 'Sök tecken'. Efter två bokstäver får du förslag "
 "på ord att välja som det finns tecken för.<br/>"
-"Tryck på sök så visas en träfflista. ALternativ:<br/>"
+"Tryck på sök så visas en träfflista. Alternativ:<br/>"
 "Välj en ordkategori i listan på kategorier för att få ett urval.<br/>"
 "För att bläddra bokstav för bokstav så finns nedan en lista med bokstäver. "
 
