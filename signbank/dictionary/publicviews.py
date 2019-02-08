@@ -110,6 +110,7 @@ class TranslationListPublicView(ListView):
         context["signlanguages"] = SignLanguage.objects.filter(dataset__is_public=True).distinct()
         context["signlanguage_count"] = context["signlanguages"].count()
         context["lang"] = self.request.GET.get("lang")
+        context["tags"] = self.request.GET.get("tags")
         if context["lang"]:
             context["searchform"].fields["dataset"].queryset = context["searchform"].fields["dataset"].queryset.filter(signlanguage__language_code_3char=context["lang"])
         context["datasets"] = self.request.GET.getlist("dataset")
