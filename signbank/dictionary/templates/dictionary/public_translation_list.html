@@ -72,7 +72,8 @@ $( document ).ready(function() {
     For quick browsing of signs a list of starting letters is provided in the top of the page.
     Find the available sign languages on top of the search box, select one to narrow down your search results.
     Filter the results even further by selecting one or multiple lexicons under the search box, which represent a set
-    of signs maintained by a given organisation.{% endblocktrans %}
+    of signs maintained by a given organisation.
+    {% endblocktrans %}
 </p>
 <p>
 {% blocktrans %}To play a video, click on top of the video (image), and pause the video by clicking on it again.
@@ -81,7 +82,7 @@ $( document ).ready(function() {
     information page by clicking on the sign title.
     {% endblocktrans %}
 </p>
-          </div>
+        </div>
         </div>
         {# Search form #}
 
@@ -93,14 +94,14 @@ $( document ).ready(function() {
                 {#categories som tag#}
                 <div class="panel-body">
                 <select name="tags" >
-                    <option value='' selected="selected">Kategorier:</option>
-                        <option value=8>arbetsmarknad</option>
-                        <option value=7>föreningsliv</option>
-                        <option value=2>politik</option>
-                        <option value=9>socialförsäkring</option>
-                        <option value=6>statsskick</option>
+                    <option value=''>Kategorier:</option>
+                        <option {% if tags == '8' %} selected="selected" {% endif %} value=8>arbetsmarknad</option>
+                        <option {% if tags == '7' %} selected="selected" {% endif %} value=7>föreningsliv</option>
+                        <option {% if tags == '2' %} selected="selected" {% endif %} value=2>politik</option>
+                        <option {% if tags == '9' %} selected="selected" {% endif %} value=9>socialförsäkring</option>
+                        <option {% if tags == '6' %} selected="selected" {% endif %} value=6>statsskick</option>
                     <!--{% for tag in tags %}-->
-                        <!--<option value={{ tag.id }}>{{ tag }}</option>-->
+                        <!--<option {% if tags == '8' %} selected="selected" {% endif %} value={{ tag.id }}>{{ tag }}</option>-->
                     <!--{% endfor %}-->
                 </select>
                 <br/>
