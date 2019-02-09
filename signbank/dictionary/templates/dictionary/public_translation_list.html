@@ -1,7 +1,7 @@
 {% extends "baselayout_embed.html" %}
 {% load i18n %}
-{% load bootstrap3 %}
-{% load staticfiles %}
+<!--{% load bootstrap3 %}-->
+<!--{% load staticfiles %}-->
 {% block extrajs %}
 
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all"/>
@@ -14,9 +14,13 @@
 <!--<script src="{% static "js/mark.min.js" %}"></script>-->
 <!--<script src="{% static "js/jquery-ui.js" %}"></script>-->
 {% if debug %}
+<script src="https://frigg-test.sprakochfolkminnen.se/bootstrap/js/bootstrap.min.js"></script>
+<script src="https://frigg-test.sprakochfolkminnen.se/static/js/jquery.min.js"></script>
 <script src="https://frigg-test.sprakochfolkminnen.se/static/js/mark.min.js"></script>
 <script src="https://frigg-test.sprakochfolkminnen.se/static/js/jquery-ui.js"></script>
 {% else %}
+<script src="https://frigg-test.sprakochfolkminnen.se/bootstrap/js/bootstrap.min.js"></script>
+<script src="https://frigg-test.sprakochfolkminnen.se/static/js/jquery.min.js"></script>
 <script src="https://frigg-test.sprakochfolkminnen.se/static/js/mark.min.js"></script>
 <script src="https://frigg-test.sprakochfolkminnen.se/static/js/jquery-ui.js"></script>
 {% endif %}
