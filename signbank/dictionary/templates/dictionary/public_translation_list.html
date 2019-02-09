@@ -157,7 +157,7 @@ $( document ).ready(function() {
             <div class="panel-heading row-p-small">
                 <div class="row">
                     <div class="col-md-12">
-                    <a class="btn-block" href="{{obj.get_public_translation_absolute_url}}"><h3 class="panel-title gloss-idgloss" style="text-align:center;float:left">
+                    <a class="btn-block" href="{{obj.get_public_translation_absolute_url}}"><h3 class="btn btn-xs panel-title gloss-idgloss" style="text-align:center;float:left">
                         {% for trans in obj.translation_set.all %}
                             {{ trans.keyword }}{% if not forloop.last %},{% endif %}
                         {% empty %}
