@@ -10,11 +10,17 @@
 <!--<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js" type="text/javascript"></script>-->
 
 <!--<link rel="stylesheet" href="{% static "css/jquery-ui" %}">-->
-<script src="{% static "js/mark.min.js" %}"></script>
-<script src="{% static "js/jquery-ui.js" %}"></script>
+
+<!--<script src="{% static "js/mark.min.js" %}"></script>-->
+<!--<script src="{% static "js/jquery-ui.js" %}"></script>-->
+{% if debug %}
+<script src="https://frigg-test.sprakochfolkminnen.se/static/js/mark.min.js"></script>
+<script src="https://frigg-test.sprakochfolkminnen.se/static/js/jquery-ui.js"></script>
+{% else %}
+<script src="https://frigg.sprakochfolkminnen.se/static/js/mark.min.js"></script>
+<script src="https://frigg.sprakochfolkminnen.se/static/js/jquery-ui.js"></script>
+{% endif %}
 <!--Direct links might be needed in case SV proxy:-->
-<!--<script src="https://frigg-test.sprakochfolkminnen.se/static/js/mark.min.js"></script>-->
-<!--<script src="https://frigg-test.sprakochfolkminnen.se/static/js/jquery-ui.js"></script>-->
 <script>
 /* Use mark.js to mark the keywords user searched for.
 This is not a bullet proof solution, especially when it comes to word boundaries;
@@ -95,6 +101,7 @@ $( document ).ready(function() {
                 <div class="panel-body">
                 <select name="tags" >
                     <option value=''>Kategorier:</option>
+                        <option {% if tags == '' %} selected="selected" {% endif %} value=>Alla</option>
                         <option {% if tags == '8' %} selected="selected" {% endif %} value=8>arbetsmarknad</option>
                         <option {% if tags == '7' %} selected="selected" {% endif %} value=7>föreningsliv</option>
                         <option {% if tags == '2' %} selected="selected" {% endif %} value=2>politik</option>
