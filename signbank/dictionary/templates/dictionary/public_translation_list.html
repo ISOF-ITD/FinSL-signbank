@@ -52,9 +52,15 @@ $( document ).ready(function() {
 
 <!--{#        http://blog.appliedinformaticsinc.com/autocomplete-input-field-in-django-template-with-jquery-ui/        #}-->
 <script type="text/javascript">
+    serviceurl = '';
+{% if debug %}
+    serviceurl = '{% url 'dictionary:gloss_autocomplete' %}';
+{% else %}
+    serviceurl = "http://frigg.sprakochfolkminnen.se/teckenlistan/dictionary/gloss-autocomplete/";
+{% endif %}
   $( function() {
     $( "#id_gloss" ).autocomplete({
-            source: '{% url 'dictionary:gloss_autocomplete' %}', minLength: 2,
+            source: serviceurl, minLength: 2,
     });
   } );
 </script>
