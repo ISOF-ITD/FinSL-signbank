@@ -25,24 +25,6 @@ $( document ).ready(function() {
     <a href="{% url "dictionary:public_translation_list" %}">{% blocktrans %}Signs{% endblocktrans %}</a>
 
 <div class="row">
-    <div class="col-md-10 col-md-offset-1">
-        <div class="col-md-6">
-            <h5>{% blocktrans %}Translation equivalents{% endblocktrans %}</h5>
-            {% for translation_language, translations in translation_languages_and_translations %}
-                <!--<p><strong>{{ translation_language.name }}:</strong></p>-->
-                <!--<p id='keywords_{{ translation_language.language_code_2char }}'>-->
-                    <h3>{{ translations|default:_("<em>No translations.</em>") }}</h3></p>
-            {% endfor %}
-        </div>
-        <!--<div class="col-md-12">-->
-            <!--<h6><a href="{{gloss.get_public_translation_absolute_url}}">{{gloss}}</a></h6>-->
-            <!--&lt;!&ndash;<h5>{{gloss}}</h5>&ndash;&gt;-->
-            <!--&lt;!&ndash;<span class="dataset-{{gloss.dataset.id}}-color label label-default">{{gloss.dataset}}</span>&ndash;&gt;-->
-            <!--&lt;!&ndash;<h2>{% if gloss.idgloss_en %}/ {{gloss.idgloss_en}}{% endif %}</h2>&ndash;&gt;-->
-        <!--</div>-->
-    </div>
-</div>
-<div class="row">
     <div class="col-md-12">
         {% for glossvideo in gloss.glossvideo_set.all %}
         <div class="{% if gloss.glossvideo_set.all.count > 1 %}col-md-6{% else %}col-md-12{% endif %}">
@@ -73,6 +55,20 @@ $( document ).ready(function() {
 </div>
 <div class="row">
 <div class="col-md-10 col-md-offset-1">
+        <div class="col-md-6">
+            <h5>{% blocktrans %}Translation equivalents{% endblocktrans %}</h5>
+            {% for translation_language, translations in translation_languages_and_translations %}
+                <!--<p><strong>{{ translation_language.name }}:</strong></p>-->
+                <!--<p id='keywords_{{ translation_language.language_code_2char }}'>-->
+                    <h3>{{ translations|default:_("<em>No translations.</em>") }}</h3></p>
+            {% endfor %}
+        </div>
+        <!--<div class="col-md-12">-->
+            <!--<h6><a href="{{gloss.get_public_translation_absolute_url}}">{{gloss}}</a></h6>-->
+            <!--&lt;!&ndash;<h5>{{gloss}}</h5>&ndash;&gt;-->
+            <!--&lt;!&ndash;<span class="dataset-{{gloss.dataset.id}}-color label label-default">{{gloss.dataset}}</span>&ndash;&gt;-->
+            <!--&lt;!&ndash;<h2>{% if gloss.idgloss_en %}/ {{gloss.idgloss_en}}{% endif %}</h2>&ndash;&gt;-->
+        <!--</div>-->
         <div class="col-md-6">
             <h5>{% blocktrans %}Notes{% endblocktrans %}</h5>
             <p>{% if gloss.notes %}{{gloss.notes}}
