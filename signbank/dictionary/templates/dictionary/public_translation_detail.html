@@ -34,17 +34,12 @@ $( document ).ready(function() {
                     <h3>{{ translations|default:_("<em>No translations.</em>") }}</h3></p>
             {% endfor %}
         </div>
-        <div class="col-md-12">
-            <h6><a href="{{gloss.get_public_translation_absolute_url}}">{{gloss}}</a></h6>
-            <!--<h5>{{gloss}}</h5>-->
-            <!--<span class="dataset-{{gloss.dataset.id}}-color label label-default">{{gloss.dataset}}</span>-->
-            <!--<h2>{% if gloss.idgloss_en %}/ {{gloss.idgloss_en}}{% endif %}</h2>-->
-        </div>
-        <div class="col-md-6">
-            <h5>{% blocktrans %}Notes{% endblocktrans %}</h5>
-            <p>{% if gloss.notes %}{{gloss.notes}}
-                {% else %}<em>{% blocktrans %}No notes.{% endblocktrans %}</em>{% endif %}</p>
-        </div>
+        <!--<div class="col-md-12">-->
+            <!--<h6><a href="{{gloss.get_public_translation_absolute_url}}">{{gloss}}</a></h6>-->
+            <!--&lt;!&ndash;<h5>{{gloss}}</h5>&ndash;&gt;-->
+            <!--&lt;!&ndash;<span class="dataset-{{gloss.dataset.id}}-color label label-default">{{gloss.dataset}}</span>&ndash;&gt;-->
+            <!--&lt;!&ndash;<h2>{% if gloss.idgloss_en %}/ {{gloss.idgloss_en}}{% endif %}</h2>&ndash;&gt;-->
+        <!--</div>-->
     </div>
 </div>
 <div class="row">
@@ -52,7 +47,7 @@ $( document ).ready(function() {
         {% for glossvideo in gloss.glossvideo_set.all %}
         <div class="{% if gloss.glossvideo_set.all.count > 1 %}col-md-6{% else %}col-md-12{% endif %}">
             <hr>
-            <h4>{{glossvideo.title}}</h4>
+            <!--<h4>{{glossvideo.title}}</h4>-->
             <div class="embed-responsive embed-responsive-16by9" style="max-width: 600px;">
                 <video autoplay id="glossvideo-{{glossvideo.pk}}" preload="metadata" controls muted
                 {% if glossvideo.posterfile %} poster="{{glossvideo.posterfile.url|urlencode}}"{% endif %}>
@@ -77,7 +72,12 @@ $( document ).ready(function() {
     </div>
 </div>
 <div class="row">
-<!--<div class="col-md-10 col-md-offset-1">-->
+<div class="col-md-10 col-md-offset-1">
+        <div class="col-md-6">
+            <h5>{% blocktrans %}Notes{% endblocktrans %}</h5>
+            <p>{% if gloss.notes %}{{gloss.notes}}
+                {% else %}<em>{% blocktrans %}No notes.{% endblocktrans %}</em>{% endif %}</p>
+        </div>
     <!--<hr>-->
     <!--<div class="col-md-12">-->
         <!--<h4>{% blocktrans %}Relations to glosses{% endblocktrans %}</h4>-->
@@ -156,6 +156,6 @@ $( document ).ready(function() {
         <!--</div>-->
     <!--</div>-->
     <!--</div>-->
-<!--</div>-->
+</div>
 </div>
 {% endblock %}
