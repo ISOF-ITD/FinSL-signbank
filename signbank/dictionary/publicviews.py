@@ -27,6 +27,47 @@ from django.http import HttpResponse
 
 import re
 
+class TranslationServiceView(FormView):
+    def get(self,request,*args,**kwargs):
+        data = request.GET
+        term = data.get("term")
+        #Remove not litterals as extra percausion
+        name = re.sub(u'[^\wåäö]', "", term)
+        # name2 = re.sub(r"[^a-zA-Zå-öÄ-Ö]+", "", term)
+        if name:
+            # Return keywords
+            # glosses = Gloss.objects.filter(idgloss__istartswith = name)
+            # translations = Keyword.objects.filter(text__istartswith = name)
+
+            # Return ONLY keywords with published glosses
+            sqlselect = '''SELECT dk.id as id, dk.text as text, dg.idgloss, vg.videofile, dg.notes FROM teckensprak.dictionary_keyword dk'''
+            sqljoin = ''' JOIN teckensprak.dictionary_translation dt ON dk.id = dt.keyword_id JOIN teckensprak.dictionary_gloss dg ON dg.id = dt.gloss_id JOIN teckensprak.video_glossvideo vg ON dg.id = vg.gloss_id '''
+
+            # https: // groups.google.com / forum /  # !topic/django-users/bma8Qk2T-V4
+            sqlfilter2 = " WHERE dg.published = TRUE and vg.is_public = TRUE AND text like %s"
+            user_input = "%s%%" % name
+
+            # funkar:
+            sql = sqlselect + sqljoin + sqlfilter2
+
+            # Return ONLY keywords with published glosses using objects.raw (no need for extra sql-view or model class)
+            translations = Keyword.objects.raw(sql, [user_input])
+            # translations = Keyword.objects.raw(sql)
+        # else:
+            # translations = Keyword.objects.all()
+        results = []
+        for translation in translations:
+            all_json = {}
+            all_json['id'] = translation.id
+            all_json['question'] = translation.text
+            all_json['videofile'] = translation.videofile
+            all_json['answer'] = translation.notes
+            results.append(all_json)
+        data = json.dumps(results)
+        mimetype = 'application/json'
+        return HttpResponse(data, mimetype)
+
+
 # *code in view which returns json data *
 class TranslationAutoCompleteView(FormView):
     def get(self,request,*args,**kwargs):

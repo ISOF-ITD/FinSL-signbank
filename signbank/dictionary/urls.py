@@ -94,6 +94,11 @@ urlpatterns = [
         publicviews.TranslationAutoCompleteView.as_view(),
         name='gloss_autocomplete',
     ),
+    url(
+        r'^translationservice/$',
+        publicviews.TranslationServiceView.as_view(),
+        name='translationservice',
+    ),
     # url(r'^public/gloss/(?P<pk>\d+)', publicviews.GlossDetailPublicView.as_view(), name='public_gloss_view'),
     url(r'^public/translation/(?P<pk>\d+)', publicviews.TranslationDetailPublicView.as_view(), name='public_gloss_translation_view'),
 
