@@ -37,13 +37,13 @@ $( document ).ready(function() {
                     {% if debug %}
                         <source src="https://frigg-test.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
                     {% else %}
-                        <source src="http://frigg.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
+                        <source src="https://frigg.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
                     {% endif %}
                 {% elif glossvideo.get_extension == '.webm' %}
                     {% if debug %}
                         <source src="https://frigg-test.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/webm">
                     {% else %}
-                        <source src="http://frigg.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/webm">
+                        <source src="https://frigg.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/webm">
                     {% endif %}
                 {% endif %}
                     {% blocktrans %}Your browser does not support the video tag.{% endblocktrans %}
