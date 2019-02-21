@@ -56,13 +56,22 @@ $( document ).ready(function() {
 {% if debug %}
     serviceurl = '{% url 'dictionary:gloss_autocomplete' %}';
 {% else %}
-    serviceurl = "http://frigg.sprakochfolkminnen.se/teckenlistan/dictionary/gloss-autocomplete/";
+    serviceurl = "https://frigg.sprakochfolkminnen.se/teckenlistan/dictionary/gloss-autocomplete/";
 {% endif %}
   $( function() {
     $( "#id_gloss" ).autocomplete({
             source: serviceurl, minLength: 2,
     });
   } );
+
+    //Add additional parameter in callback. Not yet working!
+    $('#id_gloss').setOptions({
+        params: {
+                tag: function(){
+                    return $("#taglist").val();
+                }
+        }
+    });
 </script>
 
 {% endblock %}
@@ -106,7 +115,7 @@ $( document ).ready(function() {
 
                 {#categories som tag#}
                 <div class="panel-body">
-                <select name="tags" >
+                <select name="tags" id="taglist">
                     <option value=''>Kategorier:</option>
                         <option {% if tags == '' %} selected="selected" {% endif %} value=>Alla</option>
                         <option {% if tags == '8' %} selected="selected" {% endif %} value=8>arbetsmarknad</option>
