@@ -47,31 +47,75 @@ $( document ).ready(function() {
             },
         });
     }
-});
-</script>
 
-<!--{#        http://blog.appliedinformaticsinc.com/autocomplete-input-field-in-django-template-with-jquery-ui/        #}-->
-<script type="text/javascript">
     serviceurl = '';
 {% if debug %}
     serviceurl = '{% url 'dictionary:gloss_autocomplete' %}';
 {% else %}
     serviceurl = "https://frigg.sprakochfolkminnen.se/teckenlistan/dictionary/gloss-autocomplete/";
 {% endif %}
+
+/*
+$("#id_gloss").autocomplete({
+    source: function(request, response) {
+    $.getJSON(serviceurl,
+        {
+            term: $("id_gloss").val();
+        },
+      response);
+    },
+    minLength: 3,
+    select: function (a, b) {
+        var selected_venue_id = b.item.v_id;
+        var selected_venue_name = b.item.label;
+        $("#id_gloss").val();
+        console.log(selected_venue_id);
+    }
+});
+
+
   $( function() {
     $( "#id_gloss" ).autocomplete({
             source: serviceurl, minLength: 2,
     });
   } );
+*/
 
+//https://stackoverflow.com/questions/3693560/how-do-i-pass-an-extra-parameter-to-jquery-autocomplete-field
+$("#id_gloss").autocomplete({
+    source: function(request, response) {
+        $.ajax({
+            url: serviceurl,
+            dataType: "json",
+            data: {
+                term : request.term,
+                tag : $("#taglist").val()
+            },
+            success: function(data) {
+                response(data);
+            }
+        });
+    },
+    min_length: 3,
+    delay: 300
+});
+
+/*
     //Add additional parameter in callback. Not yet working!
     $('#id_gloss').setOptions({
-        params: {
+        extraParams: {
                 tag: function(){
                     return $("#taglist").val();
                 }
         }
     });
+*/
+
+});
+</script>
+
+<!--{#        http://blog.appliedinformaticsinc.com/autocomplete-input-field-in-django-template-with-jquery-ui/        #}-->
+<script type="text/javascript">
 </script>
 
 {% endblock %}

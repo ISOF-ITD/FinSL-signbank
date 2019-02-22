@@ -73,6 +73,9 @@ class TranslationAutoCompleteView(FormView):
     def get(self,request,*args,**kwargs):
         data = request.GET
         term = data.get("term")
+        tag = None
+        if data.get("tag"):
+            tag = data.get("tag")
         #Remove not litterals as extra percausion
         name = re.sub(u'[^\wåäö]', "", term)
         # name2 = re.sub(r"[^a-zA-Zå-öÄ-Ö]+", "", term)
@@ -98,10 +101,20 @@ class TranslationAutoCompleteView(FormView):
 
             # https: // groups.google.com / forum /  # !topic/django-users/bma8Qk2T-V4
             sqlfilter2 = " WHERE dg.published = 1 AND text like %s"
-            user_input = "%s%%" % name
+            user_input1 = "%s%%" % name
+            user_input = [user_input1]
+
+            sqljointag = ""
+            sqlfiltertag = ""
+            if tag:
+                sqljointag = ''' JOIN teckensprak.tagging_taggeditem tt ON tt.object_id = dt.gloss_id JOIN teckensprak.tagging_tag t ON tt.tag_id = t.id'''
+                sqlfiltertag = '''  AND t.id = %s '''
+                user_input2 = "%s%%" % tag
+                user_input = [user_input1, user_input2]
 
             # funkar:
-            sql = sqlselect + sqljoin + sqlfilter2
+            # sql = sqlselect + sqljoin + sqlfilter2
+            sql = sqlselect + sqljoin + sqljointag + sqlfilter2 + sqlfiltertag
             # sql = sqlselect + sqlfilter1
 
             # funkar inte:
@@ -124,7 +137,7 @@ class TranslationAutoCompleteView(FormView):
             # sql1 = 'SELECT dk.id as id, dk.text as text FROM teckensprak.dictionary_keyword dk'
 
             # Return ONLY keywords with published glosses using objects.raw (no need for extra sql-view or model class)
-            translations = Keyword.objects.raw(sql, [user_input])
+            translations = Keyword.objects.raw(sql, user_input)
             # translations = Keyword.objects.raw(sql)
         # else:
             # translations = Keyword.objects.all()
