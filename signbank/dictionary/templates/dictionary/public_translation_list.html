@@ -123,8 +123,8 @@ $("#id_gloss").autocomplete({
 {% get_language_info for LANGUAGE_CODE as lang %}
 <div class="row">
     <div class="col-md-12">
-        <h2>{% blocktrans %}Search signs{% endblocktrans %}
-            <small>{% blocktrans %}By gloss or translation equivalents{% endblocktrans %}
+        <!--<h2>{% blocktrans %}Search signs{% endblocktrans %}-->
+            <!--<small>{% blocktrans %}By gloss or translation equivalents{% endblocktrans %}-->
                 <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#collapseHelp" aria-expanded="false" aria-controls="collapseHelp">
           {% blocktrans %}Help{% endblocktrans %} <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
         </button></small></h2>
@@ -157,10 +157,11 @@ $("#id_gloss").autocomplete({
             <div class="panel-body">
             <form action="{% url 'dictionary:public_translation_list' %}" method="get" class="form">
 
+                Välj kategori
                 {#categories som tag#}
-                <div class="panel-body">
+                <br/>
                 <select name="tags" id="taglist">
-                    <option value=''>Kategorier:</option>
+                    <!--<option value=''>Kategorier:</option>-->
                         <option {% if tags == '' %} selected="selected" {% endif %} value=>Alla</option>
                         <option {% if tags == '8' %} selected="selected" {% endif %} value=8>arbetsmarknad</option>
                         <option {% if tags == '7' %} selected="selected" {% endif %} value=7>föreningsliv</option>
@@ -172,11 +173,11 @@ $("#id_gloss").autocomplete({
                     <!--{% endfor %}-->
                 </select>
                 <br/>
-                </div>
 
                 <input type="hidden" name="lang" value="{{request.GET.lang|urlencode}}">
+                <!--<input id="gloss" type="text" name="gloss" >-->
                 {% bootstrap_field searchform.gloss bound_css_class="not-bound" %}
-                <div class="form-group">
+                <!--<div class="form-group">-->
 <!--{#                    {% bootstrap_label searchform.dataset.label label_for="id_dataset" label_class="control-label" %}#}-->
 <!--{#                    <div id="id_dataset">#}-->
 <!--{#                    {% for checkbox in searchform.dataset %}{# Doing this manually so that we can add 'span label'. #}-->
@@ -186,7 +187,7 @@ $("#id_gloss").autocomplete({
 <!--{#                    {% endfor %}#}-->
 <!--{#                        <div class="help-block hidden-xs" style="display:inline-block;">{{searchform.dataset.help_text}}</div>#}-->
 <!--{#                    </div>#}-->
-                </div>
+                <!--</div>-->
                     <button type="submit" class="btn btn-primary">
                         {% blocktrans context "public_search" %}Search{% endblocktrans %}
                     </button>
@@ -196,7 +197,8 @@ $("#id_gloss").autocomplete({
     </div>
 
     <div class="panel-body">
-        <strong>{% blocktrans %}Browse:{% endblocktrans %}</strong>
+        <strong>{% blocktrans %}Browse{% endblocktrans %}</strong>
+        <br/>
         <div class="btn-group" role="group" aria-label="Browse">
         {% for letter in first_letters %}
             <a role="button" class="btn btn-default" href="?gloss={{letter.0|urlencode}}{% if request.GET.lang %}&lang={{request.GET.lang|urlencode}}{% endif %}{% if request.GET.dataset %}{% for ds in datasets %}&dataset={{ds|urlencode}}{% endfor %}{% endif %}">{{letter.0}}</a>
