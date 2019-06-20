@@ -17,8 +17,8 @@
 <script src="https://frigg-test.sprakochfolkminnen.se/static/js/mark.min.js"></script>
 <script src="https://frigg-test.sprakochfolkminnen.se/static/js/jquery-ui.js"></script>
 {% else %}
-<script src="https://frigg-test.sprakochfolkminnen.se/static/js/mark.min.js"></script>
-<script src="https://frigg-test.sprakochfolkminnen.se/static/js/jquery-ui.js"></script>
+<script src="https://frigg.sprakochfolkminnen.se/static/js/mark.min.js"></script>
+<script src="https://frigg.sprakochfolkminnen.se/static/js/jquery-ui.js"></script>
 {% endif %}
 
 <!--Direct links might be needed in case SV proxy:-->
@@ -193,9 +193,6 @@ $("#id_gloss").autocomplete({
                     </button>
             </form>
             </div>
-        </div>
-    </div>
-
     <div class="panel-body">
         <strong>{% blocktrans %}Browse{% endblocktrans %}</strong>
         <br/>
@@ -209,6 +206,9 @@ $("#id_gloss").autocomplete({
         {% endfor %}
         </div>
     </div>
+        </div>
+    </div>
+
 </div>
 <div class="container-fluid">
 <div class="row">
