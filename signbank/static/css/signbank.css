@@ -381,5 +381,9 @@ span.gloss-keywords mark {
 
 /* ISOF  addition */
 .btn-default {
-    float: right
+    float: right;
+}
+
+#id_gloss {
+    display: inline;
 }
