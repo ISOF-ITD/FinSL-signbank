@@ -157,7 +157,7 @@ $("#id_gloss").autocomplete({
             <div class="panel-body">
             <form action="{% url 'dictionary:public_translation_list' %}" method="get" class="form">
 
-                Välj kategori
+                <strong>Välj kategori</strong>
                 {#categories som tag#}
                 <br/>
                 <select name="tags" id="taglist">
@@ -172,8 +172,9 @@ $("#id_gloss").autocomplete({
                         <!--<option {% if tags == '8' %} selected="selected" {% endif %} value={{ tag.id }}>{{ tag }}</option>-->
                     <!--{% endfor %}-->
                 </select>
-                <br/>
+                <br>
 
+                <br/>
                 <input type="hidden" name="lang" value="{{request.GET.lang|urlencode}}">
                 <!--<input id="gloss" type="text" name="gloss" >-->
                 {% bootstrap_field searchform.gloss bound_css_class="not-bound" %}
