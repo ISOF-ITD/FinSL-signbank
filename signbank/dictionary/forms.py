@@ -262,7 +262,7 @@ class DatasetMultipleChoiceField(forms.ModelMultipleChoiceField):
 class GlossPublicSearchForm(forms.Form):
     """Public search form."""
     gloss = forms.CharField(label=_("Search gloss"), required=False,
-                             widget=forms.TextInput(attrs={'placeholder': _('Search gloss')}))
+                             widget=forms.TextInput(attrs={'placeholder': _('Search gloss 2')}))
     keyword = forms.CharField(label=_("Search translation equivalent"), required=False,
                              widget=forms.TextInput(attrs={'placeholder': _('Search translation equivalent')}))
     try:

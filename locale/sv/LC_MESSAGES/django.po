@@ -273,10 +273,15 @@ msgid "Must be a CSV file with .csv extension."
 msgstr ""
 
 #. Translators: Placeholder text in a search textfield
-#: signbank/dictionary/forms.py:264 signbank/dictionary/forms.py:265
+#: signbank/dictionary/forms.py:264
 #: templates/menu.html:67
 msgid "Search gloss"
 msgstr "Sök tecken"
+
+#. Translators: Placeholder text in a search textfield
+#: signbank/dictionary/forms.py:265
+msgid "Search gloss 2"
+msgstr "Svenskt ord"
 
 #: signbank/dictionary/forms.py:266 signbank/dictionary/forms.py:267
 msgid "Search translation equivalent"
@@ -348,7 +353,7 @@ msgstr ""
 #: signbank/dictionary/templates/dictionary/public_translation_detail.html:21
 #: templates/infopage.html:50 templates/infopage.html:140
 msgid "Translation equivalents"
-msgstr "Översättningar"
+msgstr "Svenska ord"
 
 #: signbank/dictionary/models.py:141
 msgid "Keyword"
@@ -1335,8 +1340,8 @@ msgstr ""
 
 #: signbank/dictionary/templates/dictionary/public_gloss_list_tagsvideo.html:146
 #: signbank/dictionary/templates/dictionary/public_translation_list.html:132
-msgid "Browse:"
-msgstr "Bläddra:"
+msgid "Browse"
+msgstr "Bläddra"
 
 #: signbank/dictionary/templates/dictionary/public_gloss_list_tagsvideo.html:169
 #: signbank/dictionary/templates/dictionary/public_gloss_list_tagsvideo.html:214
@@ -1349,7 +1354,7 @@ msgstr "Inga översättningar på"
 #: signbank/dictionary/templates/dictionary/public_translation_list.html:190
 msgctxt "publicglosslist"
 msgid "Translations"
-msgstr "Översättningar"
+msgstr "Svenska ord"
 
 #: signbank/dictionary/templates/dictionary/public_translation_detail.html:12
 #: signbank/dictionary/templates/dictionary/public_translation_detail.html:16
