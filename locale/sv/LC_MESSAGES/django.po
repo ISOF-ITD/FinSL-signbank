@@ -1333,7 +1333,7 @@ msgid ""
 "    information page by clicking on the sign title.\n"
 "    "
 msgstr ""
-"<a href=\"https://www.sprakochfolkminnen.se/sprak/minoritetssprak/svenskt-teckensprak/teckenlistor.html\">Läs mer här.</a> "
+" "
 
 #: signbank/dictionary/templates/dictionary/public_gloss_list_tagsvideo.html:146
 #, fuzzy
@@ -1377,7 +1377,7 @@ msgid ""
 "    "
 msgstr ""
 "Så här använder du teckenlistan"
-"<ol><li><b>Sök</b> på svenska ord med hjälp av kategorier, sökord eller genom att bläddra bland termer i bokstavsordning (se utförligare beskrivning under rubriken Hjälp med sökning nedan).</li>"
+"<ol><li><b>Sök</b> på svenska ord med hjälp av kategorier, sökord eller genom att bläddra bland termer i bokstavsordning. </li><a href=\"https://www.sprakochfolkminnen.se/sprak/minoritetssprak/svenskt-teckensprak/teckenlistor.html\">Läs mer här.</a>"
 "<li>Din sökning resulterar i en <b>träfflista</b> som du hittar längst ner på sidan.</li>"
 "<li><b>Klicka på ett ord</b> i träfflistan för att få se en <b>film</b> där det valda ordet <b>tecknas på svenskt teckenspråk.</b></li>"
 "</ol>"
