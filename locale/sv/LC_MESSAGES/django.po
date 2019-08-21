@@ -351,7 +351,7 @@ msgstr ""
 #: signbank/dictionary/templates/dictionary/public_translation_detail.html:60
 #: templates/infopage.html:50 templates/infopage.html:140
 msgid "Translation equivalents"
-msgstr "Svenska ord"
+msgstr "Svenskt ord"
 
 #: signbank/dictionary/models.py:141
 msgid "Keyword"

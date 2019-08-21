@@ -122,12 +122,13 @@ $("#id_gloss").autocomplete({
 {% block content %}
 {% get_language_info for LANGUAGE_CODE as lang %}
 <div class="row">
+    <h3>{% blocktrans %}Search signs{% endblocktrans %}</h3>
     <div class="col-md-12">
         <!--<h2>{% blocktrans %}Search signs{% endblocktrans %}-->
             <!--<small>{% blocktrans %}By gloss or translation equivalents{% endblocktrans %}-->
                 <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#collapseHelp" aria-expanded="false" aria-controls="collapseHelp">
           {% blocktrans %}Help{% endblocktrans %} <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
-        </button></small></h2>
+        </button></small>
 
         <div class="collapse" id="collapseHelp">
           <div class="well">
