@@ -73,9 +73,12 @@ $( document ).ready(function() {
             <!--&lt;!&ndash;<h2>{% if gloss.idgloss_en %}/ {{gloss.idgloss_en}}{% endif %}</h2>&ndash;&gt;-->
         <!--</div>-->
         <div class="col-md-6">
+            {% if gloss.notes %}
             <h5>{% blocktrans %}Notes{% endblocktrans %}</h5>
-            <p>{% if gloss.notes %}{{gloss.notes}}
+            <p>{% if gloss.notes %}
+                {{gloss.notes}}
                 {% else %}<em>{% blocktrans %}No notes.{% endblocktrans %}</em>{% endif %}</p>
+            {% endif %}
         </div>
     <!--<hr>-->
     <!--<div class="col-md-12">-->

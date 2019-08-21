@@ -1233,7 +1233,7 @@ msgstr ""
 #: signbank/dictionary/templates/dictionary/public_gloss_list_tagsvideo.html:57
 #: signbank/dictionary/templates/dictionary/public_translation_list.html:126
 msgid "Search signs"
-msgstr "Sök på svenskt ord"
+msgstr "Sök tecken (svenska till svenskt teckenspråk)"
 
 #: signbank/dictionary/templates/dictionary/public_gloss_list.html:46
 #: signbank/dictionary/templates/dictionary/public_gloss_list_tagsvideo.html:60
@@ -1377,9 +1377,9 @@ msgid ""
 "    "
 msgstr ""
 "Så här använder du teckenlistan"
-"<br/>1. <b>Sök</b> på svenska ord med hjälp av kategorier, sökord eller genom att bläddra bland termer i bokstavsordning. <a href=\"https://www.sprakochfolkminnen.se/sprak/minoritetssprak/svenskt-teckensprak/teckenlistor.html\">Läs mer här.</a>"
-"<br/>2. Din sökning resulterar i en <b>träfflista</b> som du hittar längst ner på sidan."
-"<br/>3. <b>Klicka på ett ord</b> i träfflistan för att få se en <b>film</b> där det valda ordet <b>tecknas på svenskt teckenspråk.</b>"
+"<br/><b>1. Sök på svenska ord</b>. Sök på svenska ord med hjälp av kategorier, sökord eller genom att bläddra bland termer i bokstavsordning. <a href=\"https://www.sprakochfolkminnen.se/sprak/minoritetssprak/svenskt-teckensprak/teckenlistor.html\">Läs mer här.</a>"
+"<br/><b>2. Sökresultat i en träfflista</b>. Din sökning resulterar i en träfflista som du hittar längst ner på sidan. Om träfflistan är lång kan du bläddra bland resultatet med hjälp av numren nedanför listan."
+"<br/><b>3. Se film med översättning till svenskt teckenspråk.</b> Klicka på ett ord i träfflistan för att få se en <b>film</b> med översättning till svenskt teckenspråk."
 
 #: signbank/dictionary/templates/dictionary/public_translation_list.html:198
 msgid "Browse"
