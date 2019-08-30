@@ -13,6 +13,7 @@ $( document ).ready(function() {
 </script>
 
 <div class="container" style="margin-left: 0"  style="margin-right: 0">
+        <a class="link-new-search" href="{% url "dictionary:public_translation_list" %}">Ny sökning</a>
     <h3>Översättning till svenskt teckenspråk</h3>
     <!--<h3>{% blocktrans %}Translation to sings{% endblocktrans %}</h3>-->
     <!--<div class="navbar navbar-default" id="navbar">-->
@@ -25,7 +26,6 @@ $( document ).ready(function() {
     <!--</div>-->
     <!--</div>-->
     <!--<a href="{% url "dictionary:public_translation_list" %}">{% blocktrans %}Signs{% endblocktrans %}</a>-->
-        <a class="link-new-search" href="{% url "dictionary:public_translation_list" %}">Ny sökning</a>
 
 <div class="row" >
     <div class="col-md-8" >
@@ -57,7 +57,6 @@ $( document ).ready(function() {
     </div>
 </div>
 <div class="row">
-<div class="col-md-10 col-md-offset-1">
         <div class="col-md-6">
             <h5>{% blocktrans %}Translation equivalents{% endblocktrans %}</h5>
             {% for translation_language, translations in translation_languages_and_translations %}
