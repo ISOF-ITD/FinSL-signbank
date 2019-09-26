@@ -52,7 +52,8 @@ $( document ).ready(function() {
 {% if debug %}
     serviceurl = '{% url 'dictionary:gloss_autocomplete' %}';
 {% else %}
-    serviceurl = "https://frigg.sprakochfolkminnen.se/teckenlistan/dictionary/gloss-autocomplete/";
+    // serviceurl = "https://frigg.sprakochfolkminnen.se/teckenlistan/dictionary/gloss-autocomplete/";
+    serviceurl = ENVIRONMENT_URL + "/dictionary/gloss-autocomplete/";
 {% endif %}
 
 /*

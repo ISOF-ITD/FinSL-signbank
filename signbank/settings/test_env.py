@@ -6,8 +6,7 @@ from signbank.settings.production import *
 # The following settings are defined in settings_secret:
 # SECRET_KEY, ADMINS, DATABASES, EMAIL_HOST, EMAIL_PORT, DEFAULT_FROM_EMAIL
 
-# IMPORTANT: Debug should always be False in production
-DEBUG = True
+ENVIRONMENT_URL = 'https://frigg-test.sprakochfolkminnen.se/' + PROJECT_NAME
 
 # This points to the wsgi.py file that is used in tools.py to make web server "reload" the application.
 # WSGI_FILE = '/home/signbank/signbank-fi/signbank/wsgi.py'
