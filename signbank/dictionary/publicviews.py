@@ -10,6 +10,8 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
 from django.shortcuts import get_object_or_404
 
+from signbank.settings.configuration import Configuration
+
 from .models import Gloss, Translation, GlossTranslations, SignLanguage, Dataset, GlossRelation, Keyword
 from .models import Gloss, Dataset, SignLanguage, GlossRelation, Translation, GlossTranslations, Keyword
 from ..video.models import GlossVideo
@@ -160,6 +162,7 @@ class TranslationListPublicView(ListView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(TranslationListPublicView, self).get_context_data(**kwargs)
+        context['computer'] = Configuration.computer
         context["searchform"] = GlossPublicSearchForm(self.request.GET)
         context["signlanguages"] = SignLanguage.objects.filter(dataset__is_public=True).distinct()
         context["signlanguage_count"] = context["signlanguages"].count()

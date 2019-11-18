@@ -13,12 +13,12 @@
 
 <!--<script src="{% static "js/mark.min.js" %}"></script>-->
 <!--<script src="{% static "js/jquery-ui.js" %}"></script>-->
-{% if debug %}
-<script src="https://frigg-test.sprakochfolkminnen.se/static/js/mark.min.js"></script>
-<script src="https://frigg-test.sprakochfolkminnen.se/static/js/jquery-ui.js"></script>
+{% if computer == "uuc-isof005.its.uu.se" %}
+<script src="https://frigg.isof.se/static/js/mark.min.js"></script>
+<script src="https://frigg.isof.se/static/js/jquery-ui.js"></script>
 {% else %}
-<script src="https://frigg.sprakochfolkminnen.se/static/js/mark.min.js"></script>
-<script src="https://frigg.sprakochfolkminnen.se/static/js/jquery-ui.js"></script>
+<script src="https://frigg-test.isof.se/static/js/mark.min.js"></script>
+<script src="https://frigg-test.isof.se/static/js/jquery-ui.js"></script>
 {% endif %}
 
 <!--Direct links might be needed in case SV proxy:-->
@@ -48,12 +48,12 @@ $( document ).ready(function() {
         });
     }
 
-    serviceurl = '';
-{% if debug %}
-    serviceurl = '{% url 'dictionary:gloss_autocomplete' %}';
+    var serviceurl = '';
+{% if computer == "uuc-isof005.its.uu.se" %}
+    serviceurl = "https://frigg.isof.se/teckenlistan/dictionary/gloss-autocomplete/";
 {% else %}
-    // serviceurl = "https://frigg.sprakochfolkminnen.se/teckenlistan/dictionary/gloss-autocomplete/";
-    serviceurl = ENVIRONMENT_URL + "/dictionary/gloss-autocomplete/";
+    //serviceurl = '{% url 'dictionary:gloss_autocomplete' %}';
+    serviceurl = "https://frigg-test.isof.se/teckenlistan/dictionary/gloss-autocomplete/";
 {% endif %}
 
 /*
@@ -82,7 +82,9 @@ $("#id_gloss").autocomplete({
   } );
 */
 
-//https://stackoverflow.com/questions/3693560/how-do-i-pass-an-extra-parameter-to-jquery-autocomplete-field
+/* https://stackoverflow.com/questions/3693560/how-do-i-pass-an-extra-parameter-to-jquery-autocomplete-field
+*/
+
 $("#id_gloss").autocomplete({
     source: function(request, response) {
         $.ajax({

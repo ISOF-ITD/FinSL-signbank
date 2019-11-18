@@ -38,15 +38,15 @@ $( document ).ready(function() {
                 {% if glossvideo.posterfile %} poster="{{glossvideo.posterfile.url|urlencode}}"{% endif %}>
                 {% if glossvideo.get_extension == '.mp4' %}
                     {% if debug %}
-                        <source src="https://frigg-test.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
+                        <source src="{{ENVIRONMENT_URL}}{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
                     {% else %}
-                        <source src="https://frigg.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
+                        <source src="{{ENVIRONMENT_URL}}{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
                     {% endif %}
                 {% elif glossvideo.get_extension == '.webm' %}
                     {% if debug %}
-                        <source src="https://frigg-test.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/webm">
+                        <source src="{{ENVIRONMENT_URL}}{{glossvideo.videofile.url|urlencode}}" type="video/webm">
                     {% else %}
-                        <source src="https://frigg.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/webm">
+                        <source src="{{ENVIRONMENT_URL}}{{glossvideo.videofile.url|urlencode}}" type="video/webm">
                     {% endif %}
                 {% endif %}
                     {% blocktrans %}Your browser does not support the video tag.{% endblocktrans %}
