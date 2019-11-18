@@ -6,6 +6,9 @@ from signbank.settings.base import *
 # The following settings are defined in settings_secret:
 # SECRET_KEY, ADMINS, DATABASES, EMAIL_HOST, EMAIL_PORT, DEFAULT_FROM_EMAIL
 
+# Environment
+ENVIRONMENT_URL = 'https://frigg.isof.se/'
+
 # ISOF extra (needed when many wsgi-apps in same webserver):
 PROJECT_NAME = '/teckenlistan'
 
