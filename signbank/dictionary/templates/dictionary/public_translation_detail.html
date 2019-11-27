@@ -13,6 +13,9 @@ $( document ).ready(function() {
 </script>
 
 <div class="container" style="margin-left: 0"  style="margin-right: 0">
+        <a class="link-new-search" href="{% url "dictionary:public_translation_list" %}">Ny sökning</a>
+    <h3>Översättning till svenskt teckenspråk</h3>
+    <!--<h3>{% blocktrans %}Translation to sings{% endblocktrans %}</h3>-->
     <!--<div class="navbar navbar-default" id="navbar">-->
     <!--&lt;!&ndash; Collect the nav links, forms, and other content for toggling &ndash;&gt;-->
     <!--<div class="collapse navbar-collapse" id="navbar-collapse-1">-->
@@ -23,7 +26,6 @@ $( document ).ready(function() {
     <!--</div>-->
     <!--</div>-->
     <!--<a href="{% url "dictionary:public_translation_list" %}">{% blocktrans %}Signs{% endblocktrans %}</a>-->
-    <a href="{% url "dictionary:public_translation_list" %}">Ny sökning</a>
 
 <div class="row" >
     <div class="col-md-8" >
@@ -36,15 +38,15 @@ $( document ).ready(function() {
                 {% if glossvideo.posterfile %} poster="{{glossvideo.posterfile.url|urlencode}}"{% endif %}>
                 {% if glossvideo.get_extension == '.mp4' %}
                     {% if debug %}
-                        <source src="https://frigg-test.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
+                        <source src="{{ENVIRONMENT_URL}}{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
                     {% else %}
-                        <source src="https://frigg.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
+                        <source src="{{ENVIRONMENT_URL}}{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
                     {% endif %}
                 {% elif glossvideo.get_extension == '.webm' %}
                     {% if debug %}
-                        <source src="https://frigg-test.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/webm">
+                        <source src="{{ENVIRONMENT_URL}}{{glossvideo.videofile.url|urlencode}}" type="video/webm">
                     {% else %}
-                        <source src="https://frigg.sprakochfolkminnen.se{{glossvideo.videofile.url|urlencode}}" type="video/webm">
+                        <source src="{{ENVIRONMENT_URL}}{{glossvideo.videofile.url|urlencode}}" type="video/webm">
                     {% endif %}
                 {% endif %}
                     {% blocktrans %}Your browser does not support the video tag.{% endblocktrans %}
@@ -55,7 +57,6 @@ $( document ).ready(function() {
     </div>
 </div>
 <div class="row">
-<div class="col-md-10 col-md-offset-1">
         <div class="col-md-6">
             <h5>{% blocktrans %}Translation equivalents{% endblocktrans %}</h5>
             {% for translation_language, translations in translation_languages_and_translations %}
@@ -71,9 +72,12 @@ $( document ).ready(function() {
             <!--&lt;!&ndash;<h2>{% if gloss.idgloss_en %}/ {{gloss.idgloss_en}}{% endif %}</h2>&ndash;&gt;-->
         <!--</div>-->
         <div class="col-md-6">
+            {% if gloss.notes %}
             <h5>{% blocktrans %}Notes{% endblocktrans %}</h5>
-            <p>{% if gloss.notes %}{{gloss.notes}}
+            <p>{% if gloss.notes %}
+                {{gloss.notes}}
                 {% else %}<em>{% blocktrans %}No notes.{% endblocktrans %}</em>{% endif %}</p>
+            {% endif %}
         </div>
     <!--<hr>-->
     <!--<div class="col-md-12">-->

@@ -387,3 +387,8 @@ span.gloss-keywords mark {
 #id_gloss {
     display: inline;
 }
+
+.link-new-search {
+    color: #337ab7;
+    font-size: large;
+}

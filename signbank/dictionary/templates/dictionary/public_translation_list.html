@@ -13,12 +13,12 @@
 
 <!--<script src="{% static "js/mark.min.js" %}"></script>-->
 <!--<script src="{% static "js/jquery-ui.js" %}"></script>-->
-{% if debug %}
-<script src="https://frigg-test.sprakochfolkminnen.se/static/js/mark.min.js"></script>
-<script src="https://frigg-test.sprakochfolkminnen.se/static/js/jquery-ui.js"></script>
+{% if computer == "uuc-isof005.its.uu.se" %}
+<script src="https://frigg.isof.se/static/js/mark.min.js"></script>
+<script src="https://frigg.isof.se/static/js/jquery-ui.js"></script>
 {% else %}
-<script src="https://frigg.sprakochfolkminnen.se/static/js/mark.min.js"></script>
-<script src="https://frigg.sprakochfolkminnen.se/static/js/jquery-ui.js"></script>
+<script src="https://frigg-test.isof.se/static/js/mark.min.js"></script>
+<script src="https://frigg-test.isof.se/static/js/jquery-ui.js"></script>
 {% endif %}
 
 <!--Direct links might be needed in case SV proxy:-->
@@ -48,11 +48,12 @@ $( document ).ready(function() {
         });
     }
 
-    serviceurl = '';
-{% if debug %}
-    serviceurl = '{% url 'dictionary:gloss_autocomplete' %}';
+    var serviceurl = '';
+{% if computer == "uuc-isof005.its.uu.se" %}
+    serviceurl = "https://frigg.isof.se/teckenlistan/dictionary/gloss-autocomplete/";
 {% else %}
-    serviceurl = "https://frigg.sprakochfolkminnen.se/teckenlistan/dictionary/gloss-autocomplete/";
+    //serviceurl = '{% url 'dictionary:gloss_autocomplete' %}';
+    serviceurl = "https://frigg-test.isof.se/teckenlistan/dictionary/gloss-autocomplete/";
 {% endif %}
 
 /*
@@ -81,7 +82,9 @@ $("#id_gloss").autocomplete({
   } );
 */
 
-//https://stackoverflow.com/questions/3693560/how-do-i-pass-an-extra-parameter-to-jquery-autocomplete-field
+/* https://stackoverflow.com/questions/3693560/how-do-i-pass-an-extra-parameter-to-jquery-autocomplete-field
+*/
+
 $("#id_gloss").autocomplete({
     source: function(request, response) {
         $.ajax({
@@ -122,12 +125,13 @@ $("#id_gloss").autocomplete({
 {% block content %}
 {% get_language_info for LANGUAGE_CODE as lang %}
 <div class="row">
+    <h3>{% blocktrans %}Search signs{% endblocktrans %}</h3>
     <div class="col-md-12">
         <!--<h2>{% blocktrans %}Search signs{% endblocktrans %}-->
             <!--<small>{% blocktrans %}By gloss or translation equivalents{% endblocktrans %}-->
                 <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#collapseHelp" aria-expanded="false" aria-controls="collapseHelp">
           {% blocktrans %}Help{% endblocktrans %} <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
-        </button></small></h2>
+        </button></small>
 
         <div class="collapse" id="collapseHelp">
           <div class="well">
@@ -157,7 +161,7 @@ $("#id_gloss").autocomplete({
             <div class="panel-body">
             <form action="{% url 'dictionary:public_translation_list' %}" method="get" class="form">
 
-                Välj kategori
+                <strong>Välj kategori</strong>
                 {#categories som tag#}
                 <br/>
                 <select name="tags" id="taglist">
@@ -172,8 +176,9 @@ $("#id_gloss").autocomplete({
                         <!--<option {% if tags == '8' %} selected="selected" {% endif %} value={{ tag.id }}>{{ tag }}</option>-->
                     <!--{% endfor %}-->
                 </select>
-                <br/>
+                <br>
 
+                <br/>
                 <input type="hidden" name="lang" value="{{request.GET.lang|urlencode}}">
                 <!--<input id="gloss" type="text" name="gloss" >-->
                 {% bootstrap_field searchform.gloss bound_css_class="not-bound" %}
@@ -210,6 +215,10 @@ $("#id_gloss").autocomplete({
     </div>
 
 </div>
+        <strong>{% blocktrans %}Hit list{% endblocktrans %}</strong>
+        <br>
+
+        <br/>
 <div class="container-fluid">
 <div class="row">
     {% for obj in object_list %}

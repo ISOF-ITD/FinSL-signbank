@@ -6,8 +6,11 @@ from signbank.settings.base import *
 # The following settings are defined in settings_secret:
 # SECRET_KEY, ADMINS, DATABASES, EMAIL_HOST, EMAIL_PORT, DEFAULT_FROM_EMAIL
 
+# Environment
+ENVIRONMENT_URL = 'https://frigg-test.isof.se/'
+
 # Debug should be True in development but not in production!
-DEBUG = True
+DEBUG = False
 
 # A list of directories where Django looks for translation files.
 LOCALE_PATHS = (
