@@ -360,6 +360,7 @@ class TranslationDetailPublicView(DetailView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(TranslationDetailPublicView, self).get_context_data(**kwargs)
+        context['computer'] = Configuration.computer
         context['translation_languages_and_translations'] = context['gloss'].get_translations_for_translation_languages()
         # GlossRelations for this gloss
         context['glossrelations'] = GlossRelation.objects.filter(source=context['gloss'])

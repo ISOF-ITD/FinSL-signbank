@@ -46,7 +46,6 @@ class TranslationAdmin(admin.ModelAdmin):
     list_filter = ('gloss__dataset',)
     list_display = ('gloss', 'keyword')
 
-
 class TranslationInline(admin.TabularInline):
     model = Translation
     extra = 0
