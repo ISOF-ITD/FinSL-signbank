@@ -5,12 +5,13 @@ import re
 import csv
 import codecs
 
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, HttpResponseBadRequest, Http404
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, HttpResponseBadRequest, Http404, \
+    HttpResponseNotAllowed, HttpResponseServerError
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import permission_required, login_required
-from django.db.models.fields import NullBooleanField
+from django.db.models.fields import BooleanField
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 
@@ -25,15 +26,11 @@ from .forms import TagsAddForm, TagUpdateForm, TagDeleteForm, GlossRelationForm,
 from ..video.models import GlossVideo
 
 
+@login_required
 @permission_required('dictionary.change_gloss')
 def update_gloss(request, glossid):
     """View to update a gloss model from the jeditable jquery form
     We are sent one field and value at a time, return the new value once we've updated it."""
-
-    # Make sure that the user has the rights to change a gloss
-    if not request.user.has_perm('dictionary.change_gloss'):
-        # Translators: HttpResponseForbidden for update_gloss
-        return HttpResponseForbidden(_("Gloss Update Not Allowed"))
 
     # Get the gloss object or raise a Http404 exception if the object does not exist.
     gloss = get_object_or_404(Gloss, id=glossid)
@@ -60,22 +57,18 @@ def update_gloss(request, glossid):
         values = request.POST.getlist('value[]')
 
         if field.startswith('keywords_'):
-
             language_code_2char = field.split('_')[1]
-            return update_keywords(gloss, field, value, language_code_2char=language_code_2char)
+            return _update_keywords(gloss, field, value, language_code_2char=language_code_2char)
 
         elif field.startswith('relationforeign'):
-
-            return update_relationtoforeignsign(gloss, field, value)
+            return _update_relationtoforeignsign(gloss, field, value)
 
         # Had to add field != 'relation_between_articulators' because I changed its field name, and it conflicted here.
         elif field.startswith('relation') and field != 'relation_between_articulators':
-
-            return update_relation(gloss, field, value)
+            return _update_relation(gloss, field, value)
 
         elif field.startswith('morphology-definition'):
-
-            return update_morphology_definition(gloss, field, value)
+            return _update_morphology_definition(gloss, field, value)
 
         elif field == 'dialect':
             # expecting possibly multiple values
@@ -95,18 +88,22 @@ def update_gloss(request, glossid):
             # If editing video title, update the GlossVideo's title
             if request.user.has_perm('video.change_glossvideo'):
                 # Get pk after string "video_title"
-                video_pk = field.split("video_title")[1]
+                video_pk = field.split('video_title')[1]
                 newvalue = value
                 try:
                     video = GlossVideo.objects.get(pk=video_pk)
                     video.title = value
                     video.save()
                 except GlossVideo.DoesNotExist:
-                    pass
+                    return HttpResponseBadRequest('{error} {values}'.format(error=_('GlossVideo does not exist'), values=values),
+                                                  content_type='text/plain')
+            else:
+                return HttpResponseForbidden('Missing permission: video.change_glossvideo')
 
         elif field.startswith('glossurl-'):
             if field == 'glossurl-create':
-                GlossURL.objects.create(url=value, gloss_id=glossid)
+                sign_language_id = request.POST.get('sign-language', None)
+                GlossURL.objects.create(url=value, sign_language_id=sign_language_id, gloss_id=glossid)
                 return HttpResponseRedirect(reverse('dictionary:admin_gloss_view', kwargs={'pk': gloss.id}))
             else:
                 if request.user.has_perm('dictionary.change_gloss'):
@@ -125,23 +122,12 @@ def update_gloss(request, glossid):
                 # Translators: HttpResponseBadRequest
                 return HttpResponseBadRequest(_("Unknown field"), content_type='text/plain')
 
-            # special cases
-            # - Foreign Key fields (Language, Dialect)
-            # - keywords
-            # - videos
-            # - tags
-
             # Translate the value if a boolean
-            if isinstance(Gloss._meta.get_field(field), NullBooleanField):
+            if isinstance(Gloss._meta.get_field(field), BooleanField):
                 newvalue = value
                 value = (value == 'Yes')
 
-            # special value of 'notset' or -1 means remove the value
-            if value == 'notset' or value == -1 or value == '':
-                gloss.__setattr__(field, None)
-                gloss.save()
-                newvalue = ''
-            else:
+            if value != ' ' or value != '':
                 # See if the field is a ForeignKey
                 if gloss._meta.get_field(field).get_internal_type() == "ForeignKey":
                     gloss.__setattr__(field, FieldChoice.objects.get(machine_value=value))
@@ -151,7 +137,6 @@ def update_gloss(request, glossid):
 
                 # If the value is not a Boolean, return the new value
                 if not isinstance(value, bool):
-
                     f = Gloss._meta.get_field(field)
                     # for choice fields we want to return the 'display' version of the value
                     # Try to use get_choices to get correct choice names for FieldChoices
@@ -179,12 +164,15 @@ def update_gloss(request, glossid):
                     GlossVideo.rename_glosses_videos(gloss)
                 except (OSError, IOError):
                     # Catch error, but don't do anything for now.
-                    pass
+                    return HttpResponseServerError(_("Error: Unable to change videofiles names."))
 
         return HttpResponse(newvalue, content_type='text/plain')
 
+    else:
+        return HttpResponseNotAllowed(['POST'])
 
-def update_keywords(gloss, field, value, language_code_2char):
+
+def _update_keywords(gloss, field, value, language_code_2char):
     """Update the keyword field for the selected language"""
 
     # Try to get the language object based on the language_code.
@@ -209,7 +197,7 @@ def update_keywords(gloss, field, value, language_code_2char):
     return HttpResponse(value, content_type='text/plain')
 
 
-def update_relation(gloss, field, value):
+def _update_relation(gloss, field, value):
     """Update one of the relations for this gloss"""
 
     (what, relid) = field.split('_')
@@ -256,7 +244,7 @@ def update_relation(gloss, field, value):
     return HttpResponse(newvalue, content_type='text/plain')
 
 
-def update_relationtoforeignsign(gloss, field, value):
+def _update_relationtoforeignsign(gloss, field, value):
     """Update one of the relations for this gloss"""
 
     (what, relid) = field.split('_')
@@ -346,6 +334,8 @@ def gloss_from_identifier(value):
         return None
 
 
+@login_required
+@permission_required('dictionary.change_gloss')
 def add_relation(request):
     """Add a new relation instance"""
 
@@ -383,6 +373,8 @@ def add_relation(request):
     return HttpResponseRedirect('/')
 
 
+@login_required
+@permission_required('dictionary.change_gloss')
 def add_relationtoforeignsign(request):
     """Add a new relationtoforeignsign instance"""
 
@@ -419,6 +411,8 @@ def add_relationtoforeignsign(request):
     return HttpResponseRedirect('/')
 
 
+@login_required
+@permission_required('dictionary.change_gloss')
 def add_morphology_definition(request):
     if request.method == "POST":
         form = MorphologyForm(request.POST)
@@ -442,7 +436,7 @@ def add_morphology_definition(request):
     raise Http404(_('Incorrect request'))
 
 
-def update_morphology_definition(gloss, field, value):
+def _update_morphology_definition(gloss, field, value):
     """Update one of the relations for this gloss"""
 
     (what, morph_def_id) = field.split('_')
@@ -487,6 +481,7 @@ def update_morphology_definition(gloss, field, value):
     return HttpResponse(newvalue, content_type='text/plain')
 
 
+@login_required
 @permission_required('dictionary.change_gloss')
 def add_tag(request, glossid):
     """View to add a tag to a gloss"""
@@ -554,13 +549,11 @@ def import_gloss_csv(request):
         form = CSVUploadForm(request.POST, request.FILES)
         if form.is_valid():
             dataset = form.cleaned_data['dataset']
-
             if 'view_dataset' not in get_perms(request.user, dataset):
                 # If user has no permissions to dataset, raise PermissionDenied to show 403 template.
                 msg = _("You do not have permissions to import glosses to this lexicon.")
                 messages.error(request, msg)
                 raise PermissionDenied(msg)
-
             try:
                 glossreader = csv.reader(codecs.iterdecode(form.cleaned_data['file'], 'utf-8'), delimiter=',', quotechar='"')
             except csv.Error as e:
@@ -569,45 +562,41 @@ def import_gloss_csv(request):
                 if 'glosses_new' in request.session: del request.session['glosses_new']
                 # Set a message to be shown so that the user knows what is going on.
                 messages.add_message(request, messages.ERROR, _('Cannot open the file:' + str(e)))
-                return render(request, "dictionary/import_gloss_csv.html", {'import_csv_form': CSVUploadForm()}, )
+                return render(request, 'dictionary/import_gloss_csv.html', {'import_csv_form': CSVUploadForm()}, )
+            except UnicodeDecodeError as e:
+                # File is not UTF-8 encoded.
+                messages.add_message(request, messages.ERROR, _('File must be UTF-8 encoded!'))
+                return render(request, 'dictionary/import_gloss_csv.html', {'import_csv_form': CSVUploadForm()}, )
 
-            else:
+            for row in glossreader:
+                if glossreader.line_num == 1:
+                    # Skip first line of CSV file.
+                    continue
                 try:
-                    for row in glossreader:
-                        if glossreader.line_num == 1:
-                            # Skip first line of CSV file.
-                            continue
-                        try:
-                            # Find out if the gloss already exists, if it does add to list of glosses not to be added.
-                            gloss = Gloss.objects.get(dataset=dataset, idgloss=row[0])
-                            glosses_exists.append(gloss)
-                        except Gloss.DoesNotExist:
-                            # If gloss is not already in list, add glossdata to list of glosses to be added as a tuple.
-                            if not any(row[0] in s for s in glosses_new):
-                                glosses_new.append(tuple(row))
-                        except IndexError:
-                            # If row[0] does not exist, continue to next iteration of loop.
-                            continue
+                    # Find out if the gloss already exists, if it does add to list of glosses not to be added.
+                    gloss = Gloss.objects.get(dataset=dataset, idgloss=row[0])
+                    glosses_exists.append(gloss)
+                except Gloss.DoesNotExist:
+                    # If gloss is not already in list, add glossdata to list of glosses to be added as a tuple.
+                    if not any(row[0] in s for s in glosses_new):
+                        glosses_new.append(tuple(row))
+                except IndexError:
+                    # If row[0] does not exist, continue to next iteration of loop.
+                    continue
 
-                except UnicodeDecodeError as e:
-                    # File is not UTF-8 encoded.
-                    messages.add_message(request, messages.ERROR, _('File must be UTF-8 encoded!'))
-                    return render(request, "dictionary/import_gloss_csv.html", {'import_csv_form': CSVUploadForm()}, )
+            # Store dataset's id and the list of glosses to be added in session.
+            request.session['dataset_id'] = dataset.id
+            request.session['glosses_new'] = glosses_new
 
-                # Store dataset's id and the list of glosses to be added in session.
-                request.session['dataset_id'] = dataset.id
-                request.session['glosses_new'] = glosses_new
-
-            return render(request, "dictionary/import_gloss_csv_confirmation.html",
-                          {#'import_csv_form': CSVUploadForm(),
-                           'glosses_new': glosses_new,
+            return render(request, 'dictionary/import_gloss_csv_confirmation.html',
+                          {'glosses_new': glosses_new,
                            'glosses_exists': glosses_exists,
-                            'dataset': dataset,})
+                           'dataset': dataset, })
         else:
             # If form is not valid, set a error message and return to the original form.
             messages.add_message(request, messages.ERROR, _('The provided CSV-file does not meet the requirements '
                                                             'or there is some other problem.'))
-            return render(request, "dictionary/import_gloss_csv.html", {'import_csv_form': form}, )
+            return render(request, 'dictionary/import_gloss_csv.html', {'import_csv_form': form}, )
     else:
         # If request type is not POST, return to the original form.
         csv_form = CSVUploadForm()
@@ -666,6 +655,8 @@ def confirm_import_gloss_csv(request):
         return HttpResponseRedirect(reverse('dictionary:import_gloss_csv'))
 
 
+@login_required
+@permission_required('dictionary.change_gloss')
 def gloss_relation(request):
     """Processes Gloss Relations"""
     if request.method == "POST":
@@ -693,7 +684,8 @@ def gloss_relation(request):
                 msg = _("You do not have permissions to add relations to glosses of this lexicon.")
                 messages.error(request, msg)
                 raise PermissionDenied(msg)
-            target = get_object_or_404(Gloss, id=form.cleaned_data["target"])
+            dataset = form.cleaned_data["dataset"]
+            target = get_object_or_404(Gloss, dataset=dataset, idgloss=form.cleaned_data["target"])
             glossrelation = GlossRelation.objects.create(source=source, target=target)
             if form.cleaned_data["tag"]:
                 Tag.objects.add_tag(glossrelation, form.cleaned_data["tag"].name)

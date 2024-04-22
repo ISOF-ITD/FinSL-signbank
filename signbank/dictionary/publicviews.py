@@ -5,7 +5,7 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.db.models import Q, Prefetch
 from django.db.models.functions import Substr, Upper
-from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.templatetags.static import static
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
 from django.shortcuts import get_object_or_404
@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404
 from .models import Gloss, Dataset, SignLanguage, GlossRelation, Translation, GlossTranslations
 from ..video.models import GlossVideo
 from .forms import GlossPublicSearchForm
-from .adminviews import serialize_glosses
+from .adminviews import serialize_glosses, get_language_concept
 
 
 class GlossListPublicView(ListView):
@@ -105,9 +105,13 @@ class GlossDetailPublicView(DetailView):
         context["metadesc"] += "{langtxt}: {lang} / {videotxt}: {videocount} / {notestxt}: {notes}".format(
             langtxt=_("Sign language"), lang=gloss.dataset.signlanguage, videotxt=_("Videos"),
             videocount=gloss.glossvideo_set.all().count(), notestxt=_("Notes"), notes=gloss.notes)
+        try:
+            context["first_video"] = gloss.glossvideo_set.first()
+        except (AttributeError, ValueError):
+            context["first_video"] = None
         # Create og:image url for the gloss if the first glossvideo has a posterfile.
         try:
-            context["ogimage"] = gloss.glossvideo_set.first().posterfile.url
+            context["ogimage"] = context["first_video"].posterfile.url
         except (AttributeError, ValueError):
             context["ogimage"] = static('img/signbank_logo_ympyra1_sininen-compressor.png')
 
@@ -125,8 +129,13 @@ def public_gloss_list_xml(self, dataset_id):
     """Return ELAN schema valid XML of public glosses and their translations."""
     # http://www.mpi.nl/tools/elan/EAFv2.8.xsd
     dataset = get_object_or_404(Dataset, id=dataset_id, is_public=True)
-    return serialize_glosses(dataset, Gloss.objects.filter(dataset=dataset, published=True).prefetch_related(
-        Prefetch('translation_set', queryset=Translation.objects.filter(gloss__dataset=dataset)
-                 .select_related('keyword', 'language')),
-        Prefetch('glosstranslations_set', queryset=GlossTranslations.objects
-                 .filter(gloss__dataset=dataset).select_related('language'))))
+    dataset.glosslanguage_concept = get_language_concept(dataset.glosslanguage.language_code_3char)
+    qs = Gloss.objects.filter(dataset=dataset, published=True, exclude_from_ecv=False)\
+        .prefetch_related('glosstranslations_set')\
+        .prefetch_related('glosstranslations_set__language')\
+        .prefetch_related('translation_set')\
+        .prefetch_related('translation_set__keyword')\
+        .prefetch_related('translation_set__language')
+
+    response = serialize_glosses(dataset, qs)
+    return response

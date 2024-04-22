@@ -94,35 +94,53 @@ production.py
 .. autodata:: UPLOAD_ROOT
     :annotation:
 
-secret_settings.py
+settings_secret.py
 ^^^^^^^^^^^^^^^^^^
+
 .. currentmodule:: signbank.settings.settings_secret
 
-.. autodata:: ADMINS
-    :annotation:
-.. autodata:: DATABASES
-    :annotation:
-.. autodata:: DB_IS_PSQL
-    :annotation:
-.. autodata:: PSQL_DB_QUOTA
-    :annotation:
-.. autodata:: PSQL_DB_NAME
-    :annotation:
+.. py:data:: ADMINS
 
-.. autodata:: DEFAULT_FROM_EMAIL
-    :annotation:
-.. autodata:: EMAIL_HOST
-    :annotation:
-.. autodata:: EMAIL_PORT
-    :annotation:
+    A list of all the people who get code error notifications. When DEBUG=False and a view raises an exception, Django will email these people with the full exception information.
 
-.. autodata:: SECRET_KEY
-    :annotation:
-.. autodata:: SERVER_EMAIL
-    :annotation:
+.. py:data:: DATABASES
+
+    A dictionary containing the settings for all databases to be used with Django.
+
+.. py:data:: DB_IS_PSQL
+
+    Is the database engine used is postgresql?
+
+.. py:data::  PSQL_DB_QUOTA
+
+    Maximum size of database in bytes, controlled outside of this application. Fill it in if you have a quota.
+
+.. py:data:: PSQL_DB_NAME
+
+    The name of a database used.
+
+.. py:data:: DEFAULT_FROM_EMAIL
+
+    Default email address to use for various automated correspondence from the site manager(s). Note: You can also use the following form ‘Webmaster <webmaster@yourdomain.com>’
+
+.. py:data:: EMAIL_HOST
+
+    The host to use for sending email.
+
+.. py:data:: EMAIL_PORT
+
+    Port to use for the SMTP server defined in EMAIL_HOST.
+
+.. py:data:: SECRET_KEY
+
+    Make this unique, and don’t share it with anybody. This is used to provide cryptographic signing.
+
+.. py:data:: SERVER_EMAIL
+
+    The email address that error messages come from, such as those sent to ADMINS and MANAGERS. Note: You can also use the following form ‘Webmaster <webmaster@yourdomain.com>’
 
 testing.py
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^
 
 The **testing.py** settings file currently only imports **development.py**
 settings.

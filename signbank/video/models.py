@@ -3,8 +3,8 @@
 from __future__ import unicode_literals
 
 import os
+import datetime
 
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django.conf import settings
@@ -29,7 +29,6 @@ class GlossVideoStorage(FileSystemStorage):
         return os.path.join(self.base_url, name)
 
 
-@python_2_unicode_compatible
 class GlossVideo(models.Model):
     """A video that represents a particular idgloss"""
     #: Descriptive title of the GlossVideo.
@@ -46,11 +45,11 @@ class GlossVideo(models.Model):
     is_public = models.BooleanField(_("Public"), default=True, help_text="Is this video is public or private?")
     #: The Gloss this GlossVideo belongs to.
     gloss = models.ForeignKey('dictionary.Gloss', verbose_name=_("Gloss"), null=True,
-                              help_text=_("The gloss this GlossVideo is related to."))
+                              help_text=_("The gloss this GlossVideo is related to."), on_delete=models.CASCADE)
     #: The Dataset/Lexicon this GlossVideo is part of.
     dataset = models.ForeignKey('dictionary.Dataset', verbose_name=_("Glossvideo dataset"), null=True,
                                 help_text=_("Dataset of a GlossVideo, derived from gloss (if any) or chosen when video "
-                                            "was uploaded."))
+                                            "was uploaded."), on_delete=models.PROTECT)
     # Translators: GlossVideo: version
     #: Version number of the GlossVideo within Glosses videos.
     version = models.IntegerField(_("Version"), default=0,
@@ -70,8 +69,8 @@ class GlossVideo(models.Model):
                 self.title = self.videofile.name
             # Set version, one higher than highest version.
             self.version = self.next_version()
+            super(GlossVideo, self).save(*args, **kwargs)
 
-        super(GlossVideo, self).save(*args, **kwargs)
         # Rename the videofile if object has gloss set, now that the object has a pk.
         if self.gloss:
             # Make sure glossvideo has the same dataset as gloss.
@@ -136,11 +135,21 @@ class GlossVideo(models.Model):
         storage = self.videofile.storage
         # Do not rename the file if glossvideo doesn't have a gloss.
         if hasattr(self, 'gloss') and self.gloss is not None:
+            # Store the old file path, needed for removal later.
+            old_file_path = self.videofile.path
             # Create the base filename.
             new_filename = self.create_filename()
+            # Get the relative path in media folder.
             full_new_path = storage.get_valid_name(new_filename)
-            saved_file_path = storage.save(full_new_path, self.videofile)
-            self.videofile = saved_file_path
+            # Proceed to change the file path if the new path is not equal to old path.
+            if not old_file_path == os.path.join(storage.base_location, full_new_path):
+                # Save the file into the new path.
+                saved_file_path = storage.save(full_new_path, self.videofile)
+                # Set the actual file path to videofile.
+                self.videofile =  saved_file_path
+                if os.path.isfile(old_file_path):
+                    # Remove the file from the old path.
+                    os.remove(old_file_path)
 
     def create_filename(self):
         """Returns a correctly named filename"""
@@ -159,7 +168,7 @@ class GlossVideo(models.Model):
     @staticmethod
     def rename_glosses_videos(gloss):
         """Renames the filenames of selected Glosses videos to match the Gloss name"""
-        glossvideos = GlossVideo.objects.filter(gloss=gloss).order_by('version')
+        glossvideos = gloss.glossvideo_set.all().order_by('version')
         for glossvideo in glossvideos:
             glossvideo.save()
 
@@ -172,6 +181,13 @@ class GlossVideo(models.Model):
         if self.posterfile:
             return True
         return False
+
+    def get_videofile_modified_date(self):
+        """Return a Datetime object from filesystems last modified time of path."""
+        try:
+            return datetime.datetime.fromtimestamp(os.path.getmtime(self.videofile.path))
+        except FileNotFoundError:
+            return None
 
     def __str__(self):
         return self.videofile.name

@@ -2,7 +2,7 @@
 {% load stylesheet %}
 {% load bootstrap3 %}
 {% load i18n %}
-{% load staticfiles %}
+{% load static %}
 {% block bootstrap3_title %}{{gloss}} [{{gloss.dataset}}] | {% endblock %}
 {% block extrahead %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/tagmanager.css' %}">
@@ -59,7 +59,7 @@ $(document).ready(function () {
                 var a = document.createElement("a");
                 a.setAttribute("class", "btn btn-default");
                 a.style["float"] = "none";
-                a.href = "/dictionary/advanced/gloss/" + json_data[key].id + "/";
+                a.href = "/dictionary/advanced/gloss/" + json_data[key].id;
                 a.id = json_data[key].id;
                 var linktext = document.createTextNode(json_data[key].gloss);
                 a.appendChild(linktext);
@@ -127,9 +127,16 @@ $(document).ready(function () {
     <script src="{% static "js/jquery-ui.min.js" %}"></script>
     <script>
       $( function() {
-        var availableTags = {{dataset_glosses|safe}};
         $( ".glossrelation-autocomplete" ).autocomplete({
-          source: availableTags
+          source: async function (request, response) {
+              const { term } = request
+              const selectedDataset = $( "select#id_dataset option:checked" ).val() || null;
+              if (selectedDataset === null) return []
+              const data = await $.get(`/dictionary/ajax/glossrelation-autocomplete/${selectedDataset}?q=${term}`)
+              return response(data)
+          },
+          minLength: 2,
+          delay: 300
         });
       });
     </script>
@@ -356,14 +363,19 @@ $('#id_comment').atwho({
                         {% for url in glossurls %}
                         <p><a href="{{url.url}}" id="glossurl-{{url.id}}" class="edit edit_url" target="_blank"
                         data-glossurl-id="{{url.id}}">{{url.url}}</a>
+                            {% if url.sign_language %}<span class="label label-default">{{url.sign_language.language_code_3char}}</span>{% endif %}
                             <a href="{% url 'dictionary:delete_glossurl' glossurl=url.id %}"
                             class="glossurl-delete" style="display:none;">
-                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true" title="{% blocktrans %}Remove URL{% endblocktrans %}"></span>
                             </a></p>
                         {% endfor %}
                         <form method="POST" action="{% url 'dictionary:update_gloss' glossid=gloss.id %}" class="glossurlform" style="display:none;">{% csrf_token %}
                             <input type="hidden" name="id" value="glossurl-create">
-                            <input type="text" name="value">
+                            <input type="text" name="value" title="{% blocktrans %}URL{% endblocktrans %}">
+                            <select name="sign-language" id="sign-language-dropdown" title="{% blocktrans %}Sign language{% endblocktrans %}">
+                                <option value="">--</option>
+                                {% for sign_language in sign_languages %}<option value="{{sign_language.id}}">{{sign_language.language_code_3char}}</option>{% endfor %}
+                              </select>
                             <input type="submit" value="{% blocktrans %}Add new URL{% endblocktrans %}">
                         </form>
                     </td>
@@ -407,7 +419,7 @@ $('#id_comment').atwho({
                                         {{version.revision.date_created|date:'Y-m-d H:i'}}
                                         <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                                         {{version.revision.user.username }}
-                                        {{version.revision.comment}} |
+                                        {{version.revision.get_comment}} |
                                         {% if version.data_added or version.data_removed %}{% blocktrans %}Gloss fields:{% endblocktrans %}{% endif %}
                                         {% if version.data_added %}<span style="color:green;">+{{version.data_added}}</span>{% endif %}
                                         {% if version.data_removed %}<span style="color:red;">-{{version.data_removed}}</span>{% endif %}

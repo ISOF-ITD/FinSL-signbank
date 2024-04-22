@@ -1,22 +1,35 @@
 # -*- coding: utf-8 -*-,
 """Django settings for FinSL-signbank, base settings shared by all settings files."""
 from __future__ import unicode_literals
+from __future__ import print_function
 
 import os
+import sys
 
 from django.utils.translation import ugettext_lazy as _
 
-from signbank.settings.settings_secret import *
-# settings_secret.py is imported in this settings file, you should put the sensitive information in that file.
+try:
+    # settings_secret.py is imported in this settings file, you should put the sensitive information in that file.
+    from signbank.settings.settings_secret import *
+except ImportError:
+    print('Unable to import settings_secret.py. Create one from settings_secret.py.template.', file=sys.stderr)
+    # Unable to import SECRET_KEY from settings_secret.
+    SECRET_KEY = 'INSERT_$$$$_YOUR_%%%%_SECRET_@@@@_KEY_%%%%%%_HERE'
+
 
 # Absolute path to the base directory of the application.
 BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 # Path to the project directory.
 PROJECT_DIR = os.path.dirname(BASE_DIR)
+# Sets the field to automatically use for model primary key
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # A list in the same format as ADMINS that specifies who should get broken link notifications
 # when BrokenLinkEmailsMiddleware is enabled. ADMINS are set in secret_settings.
-MANAGERS = ADMINS
+try:
+    MANAGERS = ADMINS
+except NameError:
+    MANAGERS = (("", ""),)
 
 #: A string representing the time zone for this installation.
 TIME_ZONE = 'Europe/Helsinki'
@@ -37,6 +50,7 @@ USE_TZ = True
 #: The list is a list of two-tuples in the format (language code, language name) - for example, ('ja', 'Japanese').
 LANGUAGES = (
     ('fi', _('Finnish')),
+    ('sv', _('Swedish')),
     ('en', _('English')),
 )
 

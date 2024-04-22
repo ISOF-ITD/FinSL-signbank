@@ -8,7 +8,6 @@ import reversion
 from itertools import groupby
 from collections import OrderedDict
 
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.db import models, OperationalError
 from django.urls import reverse
@@ -20,7 +19,6 @@ from tagging.registry import AlreadyRegistered
 from tagging.models import Tag
 
 
-@python_2_unicode_compatible
 class Dataset(models.Model):
     """Dataset/Lexicon of which Glosses are part of."""
     #: A private name for the Dataset. Can include abbrevations not recognizable by the general users.
@@ -28,22 +26,25 @@ class Dataset(models.Model):
     #: Public name for the Dataset, intended for users of the public interface.
     public_name = models.CharField(_("Public name"), max_length=60)
     #: Boolean defining whether to show this Dataset in the public interface.
-    is_public = models.BooleanField(_("Is public"), default=False, help_text="Is this dataset is public or private?")
+    is_public = models.BooleanField(_("Is public"), default=False, help_text=_("Is this dataset is public or private?"))
+    #: Gloss language, which spoken language is used for the gloss name, used in ELAN external controlled vocabulary
+    glosslanguage = models.ForeignKey("Language", verbose_name=_("Gloss language"), related_name="glosslanguage",
+        on_delete=models.PROTECT, help_text=_("Language that is used for gloss names"))
     #: The Sign Language of the Glosses in this Dataset.
-    signlanguage = models.ForeignKey("SignLanguage")
+    signlanguage = models.ForeignKey("SignLanguage", verbose_name=_("Sign language"), on_delete=models.PROTECT)
     #: The translation equivalent languages that should be available to the Glosses of this Dataset.
-    translation_languages = models.ManyToManyField("Language", help_text="These languages are shown as options"
-                                                                         "for translation equivalents.")
+    translation_languages = models.ManyToManyField("Language", verbose_name=_("Translation equivalent languages"),
+                                                   help_text=_("These languages are options for translation equivalents."))
     #: A description of the Dataset: who maintains it, what is its purpose, etc.
     description = models.TextField(_("Description"))
     #: The copyright statement for the data in this Dataset, the license used for the videos etc.
     copyright = models.TextField(_("Copyright"))
     #: The admins of this Dataset. Admins receive notifications when a user applies for permissins for the Dataset.
-    admins = models.ManyToManyField(User)
+    admins = models.ManyToManyField(User, verbose_name=_("Admins"))
 
     class Meta:
         permissions = (
-            ('view_dataset', _('View dataset')),
+            ('access_dataset', _('Access dataset')),
         )
         verbose_name = _('Lexicon')
         verbose_name_plural = _('Lexicons')
@@ -53,13 +54,12 @@ class Dataset(models.Model):
         return self.name
 
 
-@python_2_unicode_compatible
 class GlossTranslations(models.Model):
     """Store a string representation of translation equivalents of certain Language for a Gloss."""
     #: The Gloss to translate
-    gloss = models.ForeignKey("Gloss")
+    gloss = models.ForeignKey("Gloss", verbose_name=_("Gloss"), on_delete=models.CASCADE)
     #: The written/spoken Language of the translations.
-    language = models.ForeignKey("Language")
+    language = models.ForeignKey("Language", verbose_name=_("Language"), on_delete=models.CASCADE)
     #: The fields that contains the translations, a text field.
     translations = models.TextField(blank=True)
 
@@ -122,16 +122,15 @@ class GlossTranslations(models.Model):
         return self.translations
 
 
-@python_2_unicode_compatible
 @reversion.register()
 class Translation(models.Model):
     """A translation equivalent of a sign in selected language."""
     #: The Gloss to translate.
-    gloss = models.ForeignKey("Gloss")
+    gloss = models.ForeignKey("Gloss", verbose_name=_("Gloss"), on_delete=models.CASCADE)
     #: The written/spoken Language of the translation.
-    language = models.ForeignKey("Language")
+    language = models.ForeignKey("Language", verbose_name=_("Language"), on_delete=models.CASCADE)
     #: The Keyword of the translation, the textual form.
-    keyword = models.ForeignKey("Keyword")
+    keyword = models.ForeignKey("Keyword", verbose_name=_("Keyword"), on_delete=models.PROTECT)
     #: The order number of the Translation within a Glosses Translations.
     order = models.IntegerField("Order")
 
@@ -145,7 +144,6 @@ class Translation(models.Model):
         return self.keyword.text
 
 
-@python_2_unicode_compatible
 @reversion.register()
 class Keyword(models.Model):
     """A keyword that stores the text for translation(s)"""
@@ -164,7 +162,6 @@ class Keyword(models.Model):
         return self.text
 
 
-@python_2_unicode_compatible
 class Language(models.Model):
     """A written language, used for translations in written languages."""
     #: The name of a spoken/written Language.
@@ -187,7 +184,6 @@ class Language(models.Model):
         return self.name
 
 
-@python_2_unicode_compatible
 class SignLanguage(models.Model):
     """A sign language."""
     #: The name of the Sign Language
@@ -205,11 +201,10 @@ class SignLanguage(models.Model):
         return self.name
 
 
-@python_2_unicode_compatible
 class Dialect(models.Model):
     """A dialect name - a regional dialect of a given Language"""
     #: The Language of the Dialect.
-    language = models.ForeignKey("SignLanguage")
+    language = models.ForeignKey("SignLanguage", verbose_name=_("Sign language"), on_delete=models.CASCADE)
     #: Name of the Dialect.
     name = models.CharField(max_length=50)
     #: Description of the Dialect.
@@ -224,11 +219,10 @@ class Dialect(models.Model):
         return str(self.language.name) + "/" + str(self.name)
 
 
-@python_2_unicode_compatible
 class RelationToForeignSign(models.Model):
     """Defines a relationship to another sign in another language (often a loan)"""
     #: The source Gloss of the relation.
-    gloss = models.ForeignKey("Gloss")
+    gloss = models.ForeignKey("Gloss", on_delete=models.CASCADE)
     # Translators: RelationToForeignSign field verbose name
     #: Boolean: Is this a loan sign?
     loan = models.BooleanField(_("Loan Sign"), default=False)
@@ -254,7 +248,6 @@ class RelationToForeignSign(models.Model):
         return str(self.gloss) + "/" + str(self.other_lang) + ',' + str(self.other_lang_gloss)
 
 
-@python_2_unicode_compatible
 class FieldChoice(models.Model):
     #: The name of the FieldChoice.
     field = models.CharField(max_length=50)
@@ -288,7 +281,6 @@ def build_choice_list(field):
         return choice_list
 
 
-@python_2_unicode_compatible
 class Gloss(models.Model):
     class Meta:
         unique_together = (("idgloss", "dataset"),)
@@ -310,10 +302,14 @@ class Gloss(models.Model):
         )
     # ### Fields ###
     #: Boolean: Is this Gloss published in the public interface?
-    published = models.BooleanField(_("Published"), default=False)
+    published = models.BooleanField(_("Published"), default=False,
+                                    help_text=_("Publish this gloss in the public gloss list"))
+    #: Boolean: Exclude this gloss from all ELAN externally controlled vocabularies (ECV)?
+    exclude_from_ecv = models.BooleanField(_("Exclude from ECV"), default=False,
+                                           help_text=_("Exclude from ELAN externally controlled vocabularies (ECV)"))
     #: The Dataset (Lexicon) this Gloss is part of.
     dataset = models.ForeignKey("Dataset", verbose_name=_("Glosses dataset"),
-                                help_text=_("Dataset a gloss is part of"))
+                                help_text=_("Dataset a gloss is part of"), on_delete=models.PROTECT)
     # Translators: Gloss field: idgloss, verbose name
     #: Gloss in Finnish. This is the unique identifying name of the Gloss.
     idgloss = models.CharField(_("Gloss"), max_length=60,
@@ -334,31 +330,31 @@ class Gloss(models.Model):
     #: The DateTime when the Gloss was created.
     created_at = models.DateTimeField(auto_now_add=True)
     #: The User who created the Gloss.
-    created_by = models.ForeignKey(User, related_name='created_by_user')
+    created_by = models.ForeignKey(User, related_name='created_by_user', null=True, on_delete=models.SET_NULL)
     #: The DateTime when the Glosses information was last updated.
     updated_at = models.DateTimeField(auto_now=True)
     #: The User who last updated the Glosses information.
-    updated_by = models.ForeignKey(User, related_name='updated_by_user')
+    updated_by = models.ForeignKey(User, related_name='updated_by_user', null=True, on_delete=models.SET_NULL)
 
     # ### Phonology fields ###
     # Translators: Gloss models field: handedness, verbose name
     handedness = models.ForeignKey('FieldChoice', verbose_name=_("Handedness"), to_field='machine_value',
                                    db_column='handedness', limit_choices_to={'field': 'handedness'},
-                                   related_name="handedness", blank=True, null=True)
+                                   related_name="handedness", blank=True, null=True, on_delete=models.SET_NULL)
     # Translators: Gloss models field: strong_handshape, verbose name
     strong_handshape = models.ForeignKey('FieldChoice', verbose_name=_("Strong Hand"), to_field='machine_value',
                                          db_column='strong_handshape', limit_choices_to={'field': 'strong_handshape'},
-                                         related_name="strong_handshape", blank=True, null=True)
+                                         related_name="strong_handshape", blank=True, null=True, on_delete=models.SET_NULL)
 
     # Translators: Gloss models field: weak_handshape, verbose name
     weak_handshape = models.ForeignKey('FieldChoice', verbose_name=_("Weak Hand"), to_field='machine_value',
                                        db_column='weak_handshape', limit_choices_to={'field': 'weak_handshape'},
-                                       related_name="weak_handshape", blank=True, null=True)
+                                       related_name="weak_handshape", blank=True, null=True, on_delete=models.SET_NULL)
 
     # Translators: Gloss models field: location, verbose name
     location = models.ForeignKey('FieldChoice', verbose_name=_("Location"), to_field='machine_value',
                                  db_column='location', limit_choices_to={'field': 'location'}, related_name="location",
-                                 blank=True, null=True)
+                                 blank=True, null=True, on_delete=models.SET_NULL)
 
     # Translators: Gloss models field: relation_between_articulators, verbose name
     relation_between_articulators = models.ForeignKey('FieldChoice', verbose_name=_("Relation Between Articulators"),
@@ -366,18 +362,20 @@ class Gloss(models.Model):
                                                       db_column='relation_between_articulators',
                                                       limit_choices_to={'field': 'relation_between_articulators'},
                                                       related_name="relation_between_articulators", blank=True,
-                                                      null=True)
+                                                      null=True, on_delete=models.SET_NULL)
 
     # Translators: Gloss models field: absolute_orientation_palm, verbose name
     absolute_orientation_palm = models.ForeignKey('FieldChoice', verbose_name=_("Absolute Orientation: Palm"),
                                                   to_field='machine_value', db_column='absolute_orientation_palm',
                                                   limit_choices_to={'field': 'absolute_orientation_palm'},
-                                                  related_name="absolute_orientation_palm", blank=True, null=True)
+                                                  related_name="absolute_orientation_palm", blank=True, null=True,
+                                                  on_delete=models.SET_NULL)
     # Translators: Gloss models field: absolute_orientation_fingers, verbose name
     absolute_orientation_fingers = models.ForeignKey('FieldChoice', verbose_name=_("Absolute Orientation: Fingers"),
                                                      to_field='machine_value', db_column='absolute_orientation_fingers',
                                                      limit_choices_to={'field': 'absolute_orientation_fingers'},
-                                                     related_name="absolute_orientation_fingers", blank=True, null=True)
+                                                     related_name="absolute_orientation_fingers", blank=True, null=True,
+                                                     on_delete=models.SET_NULL)
 
     # Translators: Gloss models field: relative_orientation_movement, verbose name
     relative_orientation_movement = models.ForeignKey('FieldChoice', verbose_name=_("Relative Orientation: Movement"),
@@ -385,47 +383,47 @@ class Gloss(models.Model):
                                                       db_column='relative_orientation_movement',
                                                       limit_choices_to={'field': 'relative_orientation_movement'},
                                                       related_name="relative_orientation_movement", blank=True,
-                                                      null=True)
+                                                      null=True, on_delete=models.SET_NULL)
     # Translators: Gloss models field: relative_orientation_location, verbose name
     relative_orientation_location = models.ForeignKey('FieldChoice', verbose_name=_("Relative Orientation: Location"),
                                                       to_field='machine_value',
                                                       db_column='relative_orientation_location',
                                                       limit_choices_to={'field': 'relative_orientation_location'},
                                                       related_name="relative_orientation_location", blank=True,
-                                                      null=True)
+                                                      null=True, on_delete=models.SET_NULL)
     # Translators: Gloss models field: orientation_change, verbose name
     orientation_change = models.ForeignKey('FieldChoice', verbose_name=_("Orientation Change"),
                                            to_field='machine_value', db_column='orientation_change',
                                            limit_choices_to={'field': 'orientation_change'},
-                                           related_name="orientation_change", blank=True, null=True)
+                                           related_name="orientation_change", blank=True, null=True, on_delete=models.SET_NULL)
 
     # Translators: Gloss models field: handshape_change, verbose name
     handshape_change = models.ForeignKey('FieldChoice', verbose_name=_("Handshape Change"), to_field='machine_value',
                                          db_column='handshape_change', limit_choices_to={'field': 'handshape_change'},
-                                         related_name="handshape_change", blank=True, null=True)
+                                         related_name="handshape_change", blank=True, null=True, on_delete=models.SET_NULL)
 
     # Translators: Gloss models field: repeated_movement, verbose name
-    repeated_movement = models.NullBooleanField(_("Repeated Movement"), null=True, default=False)
+    repeated_movement = models.BooleanField(_("Repeated Movement"), null=True, default=False)
     # Translators: Gloss models field: alternating_movement, verbose name
-    alternating_movement = models.NullBooleanField(_("Alternating Movement"), null=True, default=False)
+    alternating_movement = models.BooleanField(_("Alternating Movement"), null=True, default=False)
 
     # Translators: Gloss models field: movement_shape, verbose name
     movement_shape = models.ForeignKey('FieldChoice', verbose_name=_("Movement Shape"), to_field='machine_value',
                                        db_column='movement_shape', limit_choices_to={'field': 'movement_shape'},
-                                       related_name="movement_shape", blank=True, null=True)
+                                       related_name="movement_shape", blank=True, null=True, on_delete=models.SET_NULL)
     # Translators: Gloss models field: movement_direction, verbose name
     movement_direction = models.ForeignKey('FieldChoice', verbose_name=_("Movement Direction"),
                                            to_field='machine_value', db_column='movement_direction',
                                            limit_choices_to={'field': 'movement_direction'},
-                                           related_name="movement_direction", blank=True, null=True)
+                                           related_name="movement_direction", blank=True, null=True, on_delete=models.SET_NULL)
     # Translators: Gloss models field: movement_manner, verbose name
     movement_manner = models.ForeignKey('FieldChoice', verbose_name=_("Movement Manner"), to_field='machine_value',
                                         db_column='movement_manner', limit_choices_to={'field': 'movement_manner'},
-                                        related_name="movement_manner", blank=True, null=True)
+                                        related_name="movement_manner", blank=True, null=True, on_delete=models.SET_NULL)
     # Translators: Gloss models field: contact_type, verbose name
     contact_type = models.ForeignKey('FieldChoice', verbose_name=_("Contact Type"), to_field='machine_value',
                                      db_column='contact_type', limit_choices_to={'field': 'contact_type'},
-                                     related_name="contact_type", blank=True, null=True)
+                                     related_name="contact_type", blank=True, null=True, on_delete=models.SET_NULL)
 
     # Translators: Gloss models field: phonology_other verbose name
     phonology_other = models.TextField(_("Phonology Other"), null=True, blank=True)
@@ -443,11 +441,11 @@ class Gloss(models.Model):
     # Translators: Gloss models field: named_entity, verbose name
     named_entity = models.ForeignKey('FieldChoice', verbose_name=_("Named Entity"), to_field='machine_value',
                                      db_column='named_entity', limit_choices_to={'field': 'named_entity'},
-                                     related_name="named_entity", blank=True, null=True)
+                                     related_name="named_entity", blank=True, null=True, on_delete=models.SET_NULL)
     # Translators: Gloss models field: semantic_field, verbose name
     semantic_field = models.ForeignKey('FieldChoice', verbose_name=_("Semantic Field"), to_field='machine_value',
                                        db_column='semantic_field', limit_choices_to={'field': 'semantic_field'},
-                                       related_name="semantic_field", blank=True, null=True)
+                                       related_name="semantic_field", blank=True, null=True, on_delete=models.SET_NULL)
 
     # ### Frequency fields
     # Translators: Gloss models field_ number_of_occurences, verbose name
@@ -528,13 +526,13 @@ class Gloss(models.Model):
         return json.dumps(field_choices)
 
 
-@python_2_unicode_compatible
 class GlossURL(models.Model):
     """URL's for gloss"""
     #: The Gloss the URL belongs to.
-    gloss = models.ForeignKey('Gloss')
+    gloss = models.ForeignKey("Gloss", verbose_name=_("Gloss"), on_delete=models.CASCADE)
     #: The URL, a websites address.
     url = models.URLField(max_length=200)
+    sign_language = models.ForeignKey("SignLanguage", verbose_name=_("Sign language"), on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         verbose_name = _('Gloss URL')
@@ -544,13 +542,12 @@ class GlossURL(models.Model):
         return self.gloss.idgloss + " - " + self.url
 
 
-@python_2_unicode_compatible
 class AllowedTags(models.Model):
     """Tags a model is allowed to use."""
     #: The tags that are shown in tag lists.
-    allowed_tags = models.ManyToManyField(Tag)
+    allowed_tags = models.ManyToManyField(Tag, verbose_name=_("Allowed tags"))
     #: The ContentType of the object whose AllowedTags we set.
-    content_type = models.OneToOneField(ContentType)
+    content_type = models.OneToOneField(ContentType, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _('Allowed tags')
@@ -560,13 +557,12 @@ class AllowedTags(models.Model):
         return str(self.content_type)
 
 
-@python_2_unicode_compatible
 class GlossRelation(models.Model):
     """Relation between two glosses"""
     #: The source Gloss of the Relation.
-    source = models.ForeignKey(Gloss, related_name="glossrelation_source")
+    source = models.ForeignKey(Gloss, related_name="glossrelation_source", on_delete=models.CASCADE)
     #: The target Gloss of the Relation, the Gloss to which the source Gloss related to.
-    target = models.ForeignKey(Gloss, related_name="glossrelation_target")
+    target = models.ForeignKey(Gloss, related_name="glossrelation_target", on_delete=models.CASCADE)
 
     def tag(self):
         """The type of the Relation, a Tag."""
@@ -582,14 +578,13 @@ class GlossRelation(models.Model):
         return str(self.target)
 
 
-@python_2_unicode_compatible
 class Relation(models.Model):  # TODO: Remove
     """A relation between two glosses"""
-    source = models.ForeignKey(Gloss, related_name="relation_sources")
-    target = models.ForeignKey(Gloss, related_name="relation_targets")
+    source = models.ForeignKey(Gloss, related_name="relation_sources", on_delete=models.CASCADE)
+    target = models.ForeignKey(Gloss, related_name="relation_targets", on_delete=models.CASCADE)
     # role = models.CharField(max_length=20, choices=build_choice_list('MorphologyType'))
     role = models.ForeignKey('FieldChoice', to_field='machine_value', db_column='MorphologyType',
-                             limit_choices_to={'field': 'MorphologyType'}, blank=True)
+                             limit_choices_to={'field': 'MorphologyType'}, blank=True, on_delete=models.CASCADE)
     # antonym, synonym, cf (what's this? - see also), var[b-f]
     # (what's this - variant (XXXa is the stem, XXXb is a variant)
 
@@ -606,14 +601,13 @@ class Relation(models.Model):  # TODO: Remove
         return str(self.source)+' -> ' + str(self.target)
 
 
-@python_2_unicode_compatible
 class MorphologyDefinition(models.Model):
     """Tells something about morphology of a gloss"""
-    parent_gloss = models.ForeignKey(Gloss, related_name="parent_glosses")
+    parent_gloss = models.ForeignKey(Gloss, related_name="parent_glosses", on_delete=models.CASCADE)
     # role = models.CharField(max_length=5, choices=(build_choice_list('MorphologyType')))
     role = models.ForeignKey('FieldChoice', to_field='machine_value', db_column='MorphologyType',
-                             limit_choices_to={'field': 'MorphologyType'}, blank=True)
-    morpheme = models.ForeignKey(Gloss, related_name="morphemes")
+                             limit_choices_to={'field': 'MorphologyType'}, blank=True, on_delete=models.CASCADE)
+    morpheme = models.ForeignKey(Gloss, related_name="morphemes", on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _('Morphology definition')
