@@ -1,0 +1,43 @@
+# Install on shared server
+
+# Old server
+/var/www/django/teckenlistan/signbank/settings/settings_secret_test.py
+more /etc/httpd/conf-ssl.d/frigg-test/teckensprak.conf
+->
+/var/www/django/teckenlistan/signbank/wsgi_test_env.py
+->
+"DJANGO_SETTINGS_MODULE", "signbank.settings.development"
+
+# wsgi conf:
+/etc/httpd/conf-ssl.d/garm-test/teckenlistan.conf
+
+signbank/wsgi.py
+-> i test och prod
+signbank/settings/production.py
+# Base configuration:
+from signbank.settings.base import *
+# Secrets configuration:
+from signbank.settings.settings_secret import *
+/var/www/django/teckenlistan/signbank/settings/settings_secret.py
+
+# --------------------------
+# Install teckenlistan
+# --------------------------
+cd /var/www/django
+mkdir teckenlistan
+cd teckenlistan
+mkdir static
+
+# Python environment
+git clone git@github.com:ISOF-ITD/FinSL-signbank.git
+python3 -m venv venvdj_3
+ln -snf venvdj_3 current_venv
+source venvdj_3/bin/activate
+cd /var/www/django/teckenlistan/FinSL-signbank
+pip3 list
+vi requirements.txt
+pip3 install -r requirements.txt
+sudo systemctl restart httpd-ssl
+
+# Verify configuration
+vi /var/www/django/teckenlistan/FinSL-signbank/signbank/settings/settings_secret.py
