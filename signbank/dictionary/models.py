@@ -97,7 +97,7 @@ class GlossTranslations(models.Model):
                 translation = translations_to_keep.get(gloss=self.gloss, language=self.language, keyword=keyword)
             except Translation.DoesNotExist:
                 translation = Translation(gloss=self.gloss, language=self.language, keyword=keyword)
-            translation.order = i
+            translation.ordering = i
             translation.save()
 
         super(GlossTranslations, self).save(*args, **kwargs)
@@ -132,11 +132,11 @@ class Translation(models.Model):
     #: The Keyword of the translation, the textual form.
     keyword = models.ForeignKey("Keyword", verbose_name=_("Keyword"), on_delete=models.PROTECT)
     #: The order number of the Translation within a Glosses Translations.
-    order = models.IntegerField("Order")
+    ordering = models.IntegerField("ordering")
 
     class Meta:
         unique_together = (("gloss", "language", "keyword"),)
-        ordering = ['gloss', 'language', 'order']
+        ordering = ['gloss', 'language', 'ordering']
         verbose_name = _('Translation equivalent')
         verbose_name_plural = _('Translation equivalents')
 
