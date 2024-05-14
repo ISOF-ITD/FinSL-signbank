@@ -1,4 +1,4 @@
-{% extends "baselayout.html" %}
+{% extends "baselayout_isof.html" %}
 {% load i18n %}
 {% load bootstrap3 %}
 {% load static %}
@@ -65,15 +65,6 @@ $( document ).ready(function() {
           </section>
           </div>
         </div>
-        <strong>{% blocktrans %}Browse glosses:{% endblocktrans %}</strong>
-        <div class="btn-group" role="group" aria-label="Browse">
-        {% for letter in first_letters %}
-            <a role="button" class="btn btn-default" href="?gloss={{letter.0|urlencode}}{% if request.GET.lang %}&lang={{request.GET.lang|urlencode}}{% endif %}{% if request.GET.dataset %}{% for ds in datasets %}&dataset={{ds|urlencode}}{% endfor %}{% endif %}">{{letter.0}}</a>
-        {% empty %}
-            {# Put nothing here if results set is empty #}
-        {% endfor %}
-        </div>
-        <hr style="margin-top:0px;margin-bottom:8px;">
 
         {% if signlanguage_count and signlanguage_count > 1 %}
         <ul class="nav nav-pills" style="background-color:#fcfdff;">
@@ -94,6 +85,7 @@ $( document ).ready(function() {
                 <input type="hidden" name="lang" value="{{request.GET.lang|urlencode}}">
                 {% endif %}
                 {% bootstrap_field searchform.gloss bound_css_class="not-bound" %}
+<!--
                 {% bootstrap_field searchform.keyword bound_css_class="not-bound" %}
                 <div class="form-group">
                     {% bootstrap_label searchform.dataset.label label_for="id_dataset" label_class="control-label" %}
@@ -132,14 +124,27 @@ $( document ).ready(function() {
                         </div>
                     </div>
                 </div>
+-->
                     <button type="submit" class="btn btn-primary" style="min-width:100px;">
                         {% blocktrans context "public_search" %}Search{% endblocktrans %}
                     </button>
             </form>
             </div>
+        <strong>{% blocktrans %}Browse glosses:{% endblocktrans %}</strong>
+        <div class="btn-group" role="group" aria-label="Browse">
+        {% for letter in first_letters %}
+            <a role="button" class="btn btn-default" href="?gloss={{letter.0|urlencode}}{% if request.GET.lang %}&lang={{request.GET.lang|urlencode}}{% endif %}{% if request.GET.dataset %}{% for ds in datasets %}&dataset={{ds|urlencode}}{% endfor %}{% endif %}">{{letter.0}}</a>
+        {% empty %}
+            {# Put nothing here if results set is empty #}
+        {% endfor %}
+        </div>
+        <hr style="margin-top:0px;margin-bottom:8px;">
+
+
         </div>
     </div>
 </div>
+
 <div class="container-fluid">
         <div class="pagination">
 
@@ -154,7 +159,8 @@ $( document ).ready(function() {
             <div class="panel-heading">
                 <div class="row">
                     <div class="col-md-12">
-                    <a class="btn-block" href="{{obj.get_public_absolute_url}}"><h3 class="panel-title gloss-idgloss" style="text-align:center;">{{obj}}</h3>
+                    <a class="btn-block" href="{{obj.get_public_absolute_url}}">{{obj}}
+<!--                    <a class="btn-block" href="{{obj.get_public_absolute_url}}"><h3 class="panel-title gloss-idgloss" style="text-align:center;">{{obj}}</h3>-->
                         <span style="color:black;"><span class="glyphicon glyphicon-film" aria-hidden="true"
                               title="{% blocktrans context "videocount" %}Videos{% endblocktrans %}"></span>
                         {{obj.glossvideo_set.count}}</span>
@@ -163,6 +169,7 @@ $( document ).ready(function() {
                     </div>
                 </div>
             </div>
+<!--
             <div class="panel-body embed-responsive embed-responsive-16by9"
                  {% if obj.glossvideo_set.all.count > 0 %}style="background-color:rgb(33,33,33);"{% endif %}>
             {% if obj.glossvideo_set.all.0 %}
@@ -190,6 +197,7 @@ $( document ).ready(function() {
                 <em>{% blocktrans %}No translation equivalents yet{% endblocktrans %}.</em>
             {% endfor %}
             </div>
+-->
         </div>
     </div>
     {# These are used to fox horizontal alignment for grid. #}
