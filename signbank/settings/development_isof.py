@@ -17,7 +17,10 @@ LOCALE_PATHS = (
 
 # The absolute path to the directory where collectstatic will collect static files for deployment.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+#STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+# static files local in app installation with full path:
+STATIC_URL = '/static/'
+STATIC_ROOT = '/var/www/django/teckenlistan/static'
 # This setting defines the additional locations the staticfiles app will traverse if the FileSystemFinder finder
 # is enabled, e.g. if you use the collectstatic or findstatic management command or use the static file serving view.
 STATICFILES_DIRS = (
