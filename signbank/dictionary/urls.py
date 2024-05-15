@@ -11,16 +11,30 @@ from . import update
 from . import delete
 from . import views
 
-from signbank.dictionary.publicviews_isof import TranslationListPublicView, TranslationDetailPublicView
+from signbank.dictionary.publicviews_isof import TranslationListPublicView, TranslationDetailPublicView, TranslationAutoCompleteView, TranslationServiceView
 
 # Application namespace
 app_name = 'dictionary'
 
 urlpatterns = [
     # Public views for translation (isof)
+    #path('translation', TranslationListPublicView.as_view(), name='public_translation_list'),
+    #path('translation_gloss/<int:pk>', TranslationDetailPublicView.as_view(),
+    #     name='public_gloss_translation_view'),
+
     path('translation', TranslationListPublicView.as_view(), name='public_translation_list'),
-    path('translation_gloss/<int:pk>', TranslationDetailPublicView.as_view(),
-         name='public_gloss_translation_view'),
+    path(
+        'gloss-autocomplete',
+        TranslationAutoCompleteView.as_view(),
+        name='gloss_autocomplete',
+    ),
+    path(
+        'translationservice',
+        TranslationServiceView.as_view(),
+        name='translationservice',
+    ),
+    path('translation/<int:pk>', TranslationDetailPublicView.as_view(),
+        name='public_gloss_translation_view'),
 
     # Public views for dictionary
     path('', publicviews.GlossListPublicView.as_view(), name='public_gloss_list'),

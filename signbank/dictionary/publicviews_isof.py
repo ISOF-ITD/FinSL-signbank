@@ -169,8 +169,8 @@ class TranslationListPublicView(ListView):
         # Call the base implementation first to get a context
         context = super(TranslationListPublicView, self).get_context_data(**kwargs)
         #context["searchform"] = None
-        host_name = self.request.get_host()
-        context['host_name'] = host_name
+        # host_name = self.request.get_host()
+        #context['host_name'] = host_name
         context["searchform"] = GlossPublicSearchForm(self.request.GET)
         context["signlanguages"] = SignLanguage.objects.filter(dataset__is_public=True).distinct()
         context["signlanguage_count"] = context["signlanguages"].count()
@@ -334,7 +334,7 @@ class TranslationDetailPublicView(DetailView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(TranslationDetailPublicView, self).get_context_data(**kwargs)
-        context['computer'] = Configuration.computer
+        #context['computer'] = Configuration.computer
         gloss = context["gloss"]
         context['translation_languages_and_translations'] = gloss.get_translations_for_translation_languages()
         # GlossRelations for this gloss
