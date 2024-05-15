@@ -11,7 +11,7 @@ from signbank.settings.base import *
 DEBUG = False
 
 #: IMPORTANT: The hostname that this signbank runs on, this prevents HTTP Host header attacks
-ALLOWED_HOSTS = ['signbank.csc.fi']
+ALLOWED_HOSTS = ['127.0.0.1','garm.isof.se']
 
 # A list of directories where Django looks for translation files.
 LOCALE_PATHS = (
