@@ -16,11 +16,15 @@ ALLOWED_HOSTS = ['signbank.csc.fi']
 # A list of directories where Django looks for translation files.
 LOCALE_PATHS = (
     '/home/signbank/signbank-fi/locale',
+    '/var/www/django/teckenlistan/FinSL-signbank/locale',
+    '/var/www/django/teckenlistan/teckenlistan/locale',
 )
 
 #: The absolute path to the directory where collectstatic will collect static files for deployment.
 #: Example: "/var/www/example.com/static/"
-STATIC_ROOT = '/var/www/signbank/static/'
+# static files local in app installation with full path:
+STATIC_URL = '/teckenlistan/static/'
+STATIC_ROOT = '/var/www/django/teckenlistan/static'
 # This setting defines the additional locations the staticfiles app will traverse if the FileSystemFinder finder
 # is enabled, e.g. if you use the collectstatic or findstatic management command or use the static file serving view.
 STATICFILES_DIRS = (
@@ -62,19 +66,33 @@ LOGGING = {
         }
     },
     'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
+        #'mail_admins': {
+        #    'level': 'ERROR',
+        #    'filters': ['require_debug_false'],
+        #    'class': 'django.utils.log.AdminEmailHandler'
+        #},
+        'console': {
+            'level': 'WARNING',
+            'class': 'logging.StreamHandler',
+        },
     },
     'loggers': {
         'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
+            'handlers': ['console'],
+            'level': 'WARNING',
             'propagate': True,
         },
-    }
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            # 'level': 'DEBUG',
+            'propagate': False,
+        },
+        '': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
+    },
 }
 
 #: Turn off lots of logging.

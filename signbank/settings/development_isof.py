@@ -13,6 +13,8 @@ DEBUG = True
 #: A list of directories where Django looks for translation files.
 LOCALE_PATHS = (
     os.path.join(PROJECT_DIR, 'locale'),
+    '/var/www/django/teckenlistan/FinSL-signbank/locale',
+    '/var/www/django/teckenlistan/teckenlistan/locale',
 )
 
 # The absolute path to the directory where collectstatic will collect static files for deployment.
