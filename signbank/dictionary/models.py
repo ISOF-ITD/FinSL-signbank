@@ -466,6 +466,9 @@ class Gloss(models.Model):
     def get_public_absolute_url(self):
         return reverse('dictionary:public_gloss_view', args=[str(self.id)])
 
+    def get_public_translation_absolute_url(self):
+        return reverse('dictionary:public_gloss_translation_view', args=[str(self.id)])
+
     def field_labels(self):
         """Return the dictionary of field labels for use in a template"""
         d = dict()
