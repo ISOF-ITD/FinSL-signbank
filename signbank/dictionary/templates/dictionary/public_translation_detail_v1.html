@@ -1,4 +1,4 @@
-{% extends "baselayout.html" %}
+{% extends "baselayout_isof.html" %}
 {% load i18n %}
 {% load comments %}
 {% load tagging_tags %}
@@ -10,6 +10,7 @@
     <meta property="og:title" content="{{gloss}} [{{gloss.dataset.public_name}}] | {% blocktrans context 'meta' %}Finnish Signbank{% endblocktrans %}">
     <meta name="twitter:title" content="{{gloss}} [{{gloss.dataset.public_name}}] | {% blocktrans context 'meta' %}Finnish Signbank{% endblocktrans %}">
 {% endblock %}
+<!--
 {% block structureddata %}
     {% if first_video %}
     <script type="application/ld+json">
@@ -29,11 +30,41 @@
     </script>
     {% endif %}
 {% endblock %}
+-->
 {% block content %}
 <div class="container">
+    <a class="link-new-search" href="{% url "dictionary:public_translation_list" %}">Ny sökning</a>
+    <h3>Översättning till svenskt teckenspråk</h3>
 <article>
 <div class="row">
-    <div class="col-md-10 col-md-offset-1">
+    <div class="col-md-12">
+        {% for glossvideo in gloss.glossvideo_set.all %}
+        <div class="col-md-6">
+            <hr>
+            <section>
+                <header>
+                    <h4>{{glossvideo.title}}</h4>
+                </header>
+                <div class="embed-responsive embed-responsive-16by9">
+                    <video id="glossvideo-{{glossvideo.pk}}" preload="metadata" controls muted
+                    {% if glossvideo.posterfile %} poster="{{glossvideo.posterfile.url|urlencode}}"{% endif %}>
+                    {% if glossvideo.get_extension == '.mp4' %}
+                        <source src="{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
+                    {% elif glossvideo.get_extension == '.webm' %}
+                        <source src="{{glossvideo.videofile.url|urlencode}}" type="video/webm">
+                    {% endif %}
+                        {% blocktrans %}Your browser does not support the video tag.{% endblocktrans %}
+                    </video>
+                </div>
+            </section>
+        </div>
+        {# Fix horizontal alignment for grid. We have max 2 items per row. #}
+        {% if forloop.counter|divisibleby:"2" %}<div class="clearfix"></div>{% endif %}
+        {% endfor %}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-10">
         <div class="col-md-12">
             <header>
                 <h2>
@@ -66,33 +97,7 @@
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12">
-        {% for glossvideo in gloss.glossvideo_set.all %}
-        <div class="col-md-6">
-            <hr>
-            <section>
-                <header>
-                    <h4>{{glossvideo.title}}</h4>
-                </header>
-                <div class="embed-responsive embed-responsive-16by9">
-                    <video id="glossvideo-{{glossvideo.pk}}" preload="metadata" controls muted
-                    {% if glossvideo.posterfile %} poster="{{glossvideo.posterfile.url|urlencode}}"{% endif %}>
-                    {% if glossvideo.get_extension == '.mp4' %}
-                        <source src="{{glossvideo.videofile.url|urlencode}}" type="video/mp4">
-                    {% elif glossvideo.get_extension == '.webm' %}
-                        <source src="{{glossvideo.videofile.url|urlencode}}" type="video/webm">
-                    {% endif %}
-                        {% blocktrans %}Your browser does not support the video tag.{% endblocktrans %}
-                    </video>
-                </div>
-            </section>
-        </div>
-        {# Fix horizontal alignment for grid. We have max 2 items per row. #}
-        {% if forloop.counter|divisibleby:"2" %}<div class="clearfix"></div>{% endif %}
-        {% endfor %}
-    </div>
-</div>
+<!--
 <div class="row">
     <hr>
     <div class="col-md-10 col-md-offset-1">
@@ -157,6 +162,8 @@
         </section>
     </div>
 </div>
+-->
+<!--
 <div class="row">
     <div class="col-md-10 col-md-offset-1">
         <hr style="border-color:black;">
@@ -195,6 +202,7 @@
         </div>
     </div>
 </div>
+-->
 </article>
 </div>
 {% endblock %}

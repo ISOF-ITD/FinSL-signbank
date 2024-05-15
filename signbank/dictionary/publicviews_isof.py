@@ -5,6 +5,8 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.db.models import Q, Prefetch
 from django.db.models.functions import Substr, Upper
+from django.templatetags.static import static
+from django.utils.translation import ugettext as _
 
 from signbank.dictionary.forms import GlossPublicSearchForm
 #from django.contrib.staticfiles.templatetags.staticfiles import static
