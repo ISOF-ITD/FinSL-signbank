@@ -36,7 +36,7 @@ TIME_ZONE = 'Europe/Helsinki'
 
 #: A string representing the language code for this installation. This should be in standard language ID format.
 #: For example, U.S. English is "en-us".
-LANGUAGE_CODE = 'fi'
+LANGUAGE_CODE = 'sv'
 
 # The ID, as an integer, of the current site in the django_site database table.
 SITE_ID = 1
@@ -132,7 +132,13 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'bootstrap3',
     'django_summernote',
+    # Setup with signbank isof changes within cloned signbank module
     'signbank.dictionary',
+    # TESTS: Setup with separate module for isof changes signbank_isof as main module
+    # django.core.exceptions.ImproperlyConfigured: Application labels aren't unique, duplicates: dictionary
+    #'signbank_isof.dictionary',
+    #'signbank_isof.translation',
+    #'signbank-isof.translation-video',
     'django.contrib.flatpages',
     'signbank.contentpages',
     'signbank.video',
