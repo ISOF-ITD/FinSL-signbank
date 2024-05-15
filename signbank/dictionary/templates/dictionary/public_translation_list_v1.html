@@ -186,7 +186,7 @@ $("#id_gloss").autocomplete({
                     <div class="col-md-12">
                     <a class="btn-block" href="{{obj.get_public_translation_absolute_url}}">{{obj}}
 <!--                    <a class="btn-block" href="{{obj.get_public_absolute_url}}"><h3 class="panel-title gloss-idgloss" style="text-align:center;">{{obj}}</h3>-->
-                        <span style="color:black;"><span class="glyphicon glyphicon-film" aria-hidden="true"
+                        <span style="color:black;float:right"><span class="glyphicon glyphicon-film" aria-hidden="true"
                               title="{% blocktrans context "videocount" %}Videos{% endblocktrans %}"></span>
                         {{obj.glossvideo_set.count}}</span>
                         <span class="dataset-{{obj.dataset.id}}-color label label-default" style="float:right;margin-top:2px;">{{obj.dataset.public_name}}</span>
