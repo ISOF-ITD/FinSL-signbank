@@ -18,6 +18,8 @@ from tagging.registry import register as tagging_register
 from tagging.registry import AlreadyRegistered
 from tagging.models import Tag
 
+# External models
+from .models_isof import Ortnamn_tecken
 
 class Dataset(models.Model):
     """Dataset/Lexicon of which Glosses are part of."""

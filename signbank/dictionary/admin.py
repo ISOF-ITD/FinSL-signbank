@@ -16,8 +16,10 @@ from guardian.admin import GuardedModelAdmin
 
 from tagging.models import TaggedItem, Tag
 
+from .admin_isof import Ortnamn_teckenAdmin
 from .models import Dataset, Gloss, Translation, GlossURL, Language, SignLanguage, Dialect, FieldChoice, GlossRelation,\
     AllowedTags, GlossTranslations
+from .models_isof import Ortnamn_tecken
 from ..video.admin import GlossVideoInline
 
 
@@ -58,7 +60,7 @@ class TranslationInline(admin.TabularInline):
             [field.name for field in self.opts.local_many_to_many]
         ))
 
-    # Error: TranslationInline/GlossTranslationsInline had 2 arguments but 3 was given
+    # Error: TranslationInline/GlossTranslationsInline.has_add_permission had 2 arguments but 3 was given
     #def has_add_permission(self, request):
     #def has_add_permission(self, request, obj=None):
     #    return False
@@ -272,3 +274,6 @@ admin.site.register(GlossURL, GlossURLAdmin)
 # The following models have been removed from the admin because they are not used at the moment.
 # admin.site.register(FieldChoice, FieldChoiceAdmin)
 # admin.site.register(MorphologyDefinition)
+
+# Isof extra ortnamn tecken:
+admin.site.register(Ortnamn_tecken, Ortnamn_teckenAdmin)
