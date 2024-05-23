@@ -42,6 +42,8 @@ $( document ).ready(function() {
 });
 
 serviceurl = "/teckenlistan/dictionary/gloss-autocomplete";
+// utveckling:
+//serviceurl = "/dictionary/gloss-autocomplete";
 
 $("#id_gloss").autocomplete({
     source: function(request, response) {
@@ -106,6 +108,27 @@ $("#id_gloss").autocomplete({
         <div class="panel panel-default">
             <div class="panel-body">
             <form action="{% url 'dictionary:public_translation_list' %}" method="get" class="form">
+                {# Isof select tags #}
+                <hr style="margin-top:0px;margin-bottom:8px;">
+                <strong>Välj kategori</strong>
+                {#categories som tag#}
+                <br/>
+                <select name="tags" id="taglist" aria-label="Select category">
+                    <!--<option value=''>Kategorier:</option>-->
+                        <option {% if tags == '' %} selected="selected" {% endif %} value=>Alla</option>
+                        <option {% if tags == '8' %} selected="selected" {% endif %} value=8>Arbetsmarknad</option>
+                        <option {% if tags == '7' %} selected="selected" {% endif %} value=7>Administration i föreningslivet</option>
+                        <option {% if tags == '2' %} selected="selected" {% endif %} value=2>Politik och ideologi</option>
+                        <option {% if tags == '21' %} selected="selected" {% endif %} value=21>Rättsväsende</option>
+                        <option {% if tags == '9' %} selected="selected" {% endif %} value=9>Socialförsäkring och migration</option>
+                        <option {% if tags == '6' %} selected="selected" {% endif %} value=6>Statskunskap</option>
+                    <!--{% for tag in tags %}-->
+                        <!--<option {% if tags == '8' %} selected="selected" {% endif %} value={{ tag.id }}>{{ tag }}</option>-->
+                    <!--{% endfor %}-->
+                </select>
+                <br>
+            <hr style="margin-top:0px;margin-bottom:16px;">
+
                 {% if request.GET.lang and signlanguage_count > 1 %}
                 <input type="hidden" name="lang" value="{{request.GET.lang|urlencode}}">
                 {% endif %}
