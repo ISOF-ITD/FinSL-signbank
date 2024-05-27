@@ -41,9 +41,12 @@ $( document ).ready(function() {
     }
 });
 
-serviceurl = "/teckenlistan/dictionary/gloss-autocomplete";
-// utveckling:
-//serviceurl = "/dictionary/gloss-autocomplete";
+{% if computer == "server" %}
+    serviceurl = "/teckenlistan/dictionary/gloss-autocomplete";
+{% else %}
+    // utveckling:
+    serviceurl = "/dictionary/gloss-autocomplete";
+{% endif %}
 
 $("#id_gloss").autocomplete({
     source: function(request, response) {
@@ -207,7 +210,14 @@ $("#id_gloss").autocomplete({
             <div class="panel-heading">
                 <div class="row">
                     <div class="col-md-12">
-                    <a class="btn-block" href="{{obj.get_public_translation_absolute_url}}">{{obj}}
+                    <a class="btn-block" href="{{obj.get_public_translation_absolute_url}}"> <!-- {{obj}} -->
+                        <!-- Show translations -->
+                        {% for trans in obj.translation_set.all %}
+                            {{ trans.keyword }}{% if not forloop.last %},{% endif %}
+                        {% empty %}
+                            <em>{% blocktrans %}No translations in{% endblocktrans %} {{ lang.name_local }}.</em>
+                        {% endfor %}
+
 <!--                    <a class="btn-block" href="{{obj.get_public_absolute_url}}"><h3 class="panel-title gloss-idgloss" style="text-align:center;">{{obj}}</h3>-->
                         <span style="color:black;float:right"><span class="glyphicon glyphicon-film" aria-hidden="true"
                               title="{% blocktrans context "videocount" %}Videos{% endblocktrans %}"></span>
