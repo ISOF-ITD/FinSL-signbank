@@ -34,7 +34,7 @@
 {% block content %}
 <div class="container">
     <a class="link-new-search" href="{% url "dictionary:public_translation_list" %}">Ny sökning</a>
-    <h3>Översättning till svenskt teckenspråk</h3>
+    <h3>Svenskt teckenspråk</h3>
 <article>
 <div class="row">
     <div class="col-md-12">
@@ -42,9 +42,11 @@
         <div class="col-md-6">
             <hr>
             <section>
+<!--
                 <header>
                     <h4>{{glossvideo.title}}</h4>
                 </header>
+-->
                 <div class="embed-responsive embed-responsive-16by9">
                     <video id="glossvideo-{{glossvideo.pk}}" preload="metadata" controls muted
                     {% if glossvideo.posterfile %} poster="{{glossvideo.posterfile.url|urlencode}}"{% endif %}>
@@ -68,7 +70,8 @@
         <div class="col-md-12">
             <header>
                 <h2>
-                    <a href="{{gloss.get_public_absolute_url}}">{{gloss}}</a>
+<!--                    <a href="{{gloss.get_public_absolute_url}}">{{gloss}}</a>-->
+                    <a href="{{gloss.get_public_absolute_url}}"></a>
                     <span class="dataset-{{gloss.dataset.id}}-color label label-default"
                     style="float:right;">{{gloss.dataset.public_name}}</span>
                 </h2>
@@ -76,9 +79,11 @@
         </div>
         <div class="col-md-6">
             <section>
+<!--
                 <header>
                     <h4>{% blocktrans %}Translation equivalents{% endblocktrans %}</h4>
                 </header>
+-->
                 {% for translation_language, translations in translation_languages_and_translations %}
                     <p><strong>{{ translation_language.name }}:</strong></p>
                     <p id='keywords_{{ translation_language.language_code_2char }}'>
