@@ -7,6 +7,7 @@ from django.db.models import Q, Prefetch
 from django.db.models.functions import Substr, Upper
 from django.templatetags.static import static
 from django.utils.translation import ugettext as _
+import platform
 
 from signbank.dictionary.forms import GlossPublicSearchForm
 #from django.contrib.staticfiles.templatetags.staticfiles import static
@@ -172,7 +173,13 @@ class TranslationListPublicView(ListView):
         context = super(TranslationListPublicView, self).get_context_data(**kwargs)
         #context["searchform"] = None
         # host_name = self.request.get_host()
+        # context['computer'] = Configuration.computer
         #context['host_name'] = host_name
+        computer_name = platform.node()
+        computer = 'utveckling'
+        if 'garm' in computer_name:
+            computer = 'server'
+        context['computer'] = computer
         context["searchform"] = GlossPublicSearchForm(self.request.GET)
         context["signlanguages"] = SignLanguage.objects.filter(dataset__is_public=True).distinct()
         context["signlanguage_count"] = context["signlanguages"].count()
