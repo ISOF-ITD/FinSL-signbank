@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('tagging', '0002_on_delete'),
+        # ('tagging', '0002_on_delete'),
     ]
 
     operations = [

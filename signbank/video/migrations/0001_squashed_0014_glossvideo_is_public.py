@@ -14,8 +14,8 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('dictionary', '0020_auto_20160913_1404'),
-        ('dictionary', '0001_initial'),
+        #('dictionary', '0020_auto_20160913_1404'),
+        #('dictionary', '0001_initial'),
     ]
 
     operations = [
