@@ -14,13 +14,14 @@ class Ortnamn_teckenAdmin(VersionAdmin):
 
     fields = [('id', 'ortnamn'), ('lat', 'lng'), 'forklaring_svenska', 'forklaring_tecken',
             'teckenfilnamn',
-              'teckenfilnamn2',
-              'teckenfilnamn3',
+             # 'teckenfilnamn2',
+             # 'teckenfilnamn3',
               ('createdate', 'createdby', 'changedate', 'editedby'), 'map_tag']
 
     save_on_top = True
     # save_as = True
-    list_display = ['id', 'ortnamn', 'teckenfilnamn', 'teckenfilnamn2', 'teckenfilnamn3']
+    list_display = ['id', 'ortnamn', 'teckenfilnamn']
+    # list_display = ['id', 'ortnamn', 'teckenfilnamn', 'teckenfilnamn2', 'teckenfilnamn3']
     search_fields = ['^ortnamn']
     # list_filter = ('dataset', 'published', 'exclude_from_ecv', TagListFilter, )
 
