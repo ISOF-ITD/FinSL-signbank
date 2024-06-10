@@ -28,11 +28,11 @@ class Ortnamn_tecken(models.Model):
     # Swedish placename explanation
     forklaring_tecken = models.TextField(blank=True, null=True, verbose_name="Förklaring tecken STS")
     #: File name with relative path to sign file
-    teckenfilnamn = models.CharField(max_length=60, blank=True, null=True, verbose_name="Filnamn tecken med sökväg")
+    teckenfilnamn = models.CharField(max_length=60, blank=True, null=True, verbose_name="Filnamn tecken (vid behov med sökväg)")
     #: File name with relative path to sign file number 2
-    teckenfilnamn2 = models.CharField(max_length=60, blank=True, null=True, verbose_name="Filnamn tecken 2 med sökväg")
+    teckenfilnamn2 = models.CharField(max_length=60, blank=True, null=True, verbose_name="Filnamn tecken 2 (vid behov med sökväg)")
     #: File name with relative path to sign file number 3
-    teckenfilnamn3 = models.CharField(max_length=60, blank=True, null=True, verbose_name="Filnamn tecken 3 med sökväg")
+    teckenfilnamn3 = models.CharField(max_length=60, blank=True, null=True, verbose_name="Filnamn tecken 3 (vid behov med sökväg)")
 
     # Track data changes:
     createdate = models.DateTimeField(auto_now_add=True, verbose_name="Skapad datum")
