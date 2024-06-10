@@ -41,11 +41,12 @@ $( document ).ready(function() {
     }
 });
 
+    var serviceurl = '/teckenlistan/dictionary/gloss-autocomplete/';
 {% if computer == "server" %}
-    serviceurl = "/teckenlistan/dictionary/gloss-autocomplete";
+    serviceurl = "/teckenlistan/dictionary/gloss-autocomplete/";
 {% else %}
     // utveckling:
-    serviceurl = "/dictionary/gloss-autocomplete";
+    serviceurl = "/dictionary/gloss-autocomplete/";
 {% endif %}
 
 $("#id_gloss").autocomplete({
