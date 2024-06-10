@@ -114,6 +114,8 @@ INSERT INTO django_migrations VALUES(110,'video','0014_glossvideo_is_public','20
 INSERT INTO django_migrations VALUES(111,'video','0002_auto_20200125_1039','2024-05-07 06:25:48.447189');
 INSERT INTO django_migrations VALUES(112,'dictionary','0001_squashed_0047_auto_20180629_1415','2024-05-07 06:25:48.453968');
 INSERT INTO django_migrations VALUES(113,'video','0001_squashed_0014_glossvideo_is_public','2024-05-07 06:25:48.464712');
+-- Add missing migration:
+INSERT INTO django_migrations VALUES(114,'dictionary','0007_auto_20240521_1513',NOW());
 CREATE TABLE IF NOT EXISTS auth_group_permissions (id integer NOT NULL PRIMARY KEY AUTO_INCREMENT, group_id integer NOT NULL REFERENCES auth_group (id) , permission_id integer NOT NULL REFERENCES auth_permission (id) );
 CREATE TABLE IF NOT EXISTS auth_user_groups (id integer NOT NULL PRIMARY KEY AUTO_INCREMENT, user_id integer NOT NULL REFERENCES auth_user (id) , group_id integer NOT NULL REFERENCES auth_group (id) );
 CREATE TABLE IF NOT EXISTS auth_user_user_permissions (id integer NOT NULL PRIMARY KEY AUTO_INCREMENT, user_id integer NOT NULL REFERENCES auth_user (id) , permission_id integer NOT NULL REFERENCES auth_permission (id) );
