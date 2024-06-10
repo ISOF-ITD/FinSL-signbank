@@ -177,7 +177,8 @@ class TranslationListPublicView(ListView):
         #context['host_name'] = host_name
         computer_name = platform.node()
         computer = 'utveckling'
-        if 'garm' in computer_name:
+        # Server has uu.se in name
+        if 'uu.se' in computer_name:
             computer = 'server'
         context['computer'] = computer
         context["searchform"] = GlossPublicSearchForm(self.request.GET)
