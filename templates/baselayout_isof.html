@@ -85,12 +85,12 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="{% static 'favicon/ms-icon-144x144.png' %}">
     <meta name="theme-color" content="#ffffff">
-<!--
+{% comment %}
 {% if not user.is_authenticated %}
     {% include "policyconsent.html" %}
 {% endif %}
-    {% block extrahead %}{% endblock %}
--->
+{% block extrahead %}{% endblock %}
+{% endcomment %}
   </head>
   <body>
     <div id="wrap">
