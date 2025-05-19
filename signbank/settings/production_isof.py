@@ -12,6 +12,7 @@ DEBUG = False
 
 #: IMPORTANT: The hostname that this signbank runs on, this prevents HTTP Host header attacks
 ALLOWED_HOSTS = ['127.0.0.1','garm.isof.se']
+# ALLOWED_HOSTS = ['127.0.0.1','garm-test.isof.se']
 
 # A list of directories where Django looks for translation files.
 LOCALE_PATHS = (
