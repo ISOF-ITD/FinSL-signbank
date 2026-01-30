@@ -32,7 +32,7 @@ except NameError:
     MANAGERS = (("", ""),)
 
 #: A string representing the time zone for this installation.
-TIME_ZONE = 'Europe/Helsinki'
+TIME_ZONE = 'Europe/Stockholm'
 
 #: A string representing the language code for this installation. This should be in standard language ID format.
 #: For example, U.S. English is "en-us".
@@ -49,10 +49,12 @@ USE_TZ = True
 #: A list of all available languages.
 #: The list is a list of two-tuples in the format (language code, language name) - for example, ('ja', 'Japanese').
 LANGUAGES = (
-    ('fi', _('Finnish')),
     ('sv', _('Swedish')),
-    ('en', _('English')),
+    ('fi', 'Finnish'),
+    ('en', 'English'),
 )
+LANGUAGE_CODE = 'sv'
+
 
 # URL to use when referring to static files located in STATIC_ROOT.
 # Example: "/static/" or "http://static.example.com/"
@@ -68,7 +70,7 @@ MIDDLEWARE = [
     # If want to use some of the HTTPS settings in secret_settings, enable SecurityMiddleware
     #'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
+    # 'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

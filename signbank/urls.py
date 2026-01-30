@@ -31,7 +31,7 @@ urlpatterns = [
         name='django.contrib.sitemaps.views.sitemap'),
 
     # This allows to change the translations site language
-    path('i18n/', include('django.conf.urls.i18n')),
+    # path('i18n/', include('django.conf.urls.i18n')),
 
     # Include dictionary/, and video/ urls
     path('dictionary/',

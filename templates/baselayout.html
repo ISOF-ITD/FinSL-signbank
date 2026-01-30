@@ -6,7 +6,7 @@
 {% get_current_language as LANGUAGE_CODE %}
 <html lang="{{LANGUAGE_CODE|default:'en'}}">
   <head>
-    <title>{% block bootstrap3_title %}{% endblock %}{% blocktrans %}Finnish Signbank{% endblocktrans %}</title>
+    <title>{% block bootstrap3_title %}{% endblock %}{% blocktrans %}Samhällsord-tecken{% endblocktrans %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
 
@@ -76,10 +76,10 @@
             <header id="header">{# Translators: Site title #}
                 <div class="headerlogo">
                     <h1>
-                        <a href="{% url 'root_page' %}" title="{% blocktrans %}Finnish Signbank{% endblocktrans %}">
+                        <a href="{% url 'root_page' %}" title="{% blocktrans %}Teckenlistan{% endblocktrans %}">
                             <img id="logoheadersignbank"
-                                 src="{% static 'img/signbank_logo_laatikko_valkoinen_crop-compressor.png' %}"
-                                 alt="{% blocktrans %}Finnish Signbank{% endblocktrans %}">
+                                 src="{% static 'img/isof_logga.png' %}"
+                                 alt="{% blocktrans %}Teckenlistan{% endblocktrans %}">
                         </a>
                     </h1>
                 </div>
@@ -94,7 +94,7 @@
             </main>
         </div>
     </div>
-    <footer id="footer">
+    <!-- <footer id="footer">
        <div id="footercontainer" class="container">
             <div class="footerbg">
                 <div class="logoholder">
@@ -121,7 +121,7 @@
                 </div>
             </div>
         </div>
-    </footer>
+    </footer>-->
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
 
