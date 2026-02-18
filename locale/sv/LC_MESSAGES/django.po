@@ -181,14 +181,14 @@ msgstr "Sök"
 #: signbank/video/models.py:44
 #: signbank/video/templates/uploaded_glossvideos.html:60
 msgid "Gloss"
-msgstr "Tecken"
+msgstr "Glosa"
 
 #. Translators: GlossSearchForm label
 #. Translators: Gloss field: idgloss_en (english), verbose name
 #: signbank/dictionary/forms.py:84 signbank/dictionary/models.py:294
 #: signbank/dictionary/templates/dictionary/admin_gloss_list.html:184
 msgid "Gloss in English"
-msgstr "Engelskt tecken"
+msgstr "Engelsk glosa"
 
 #. Translators: GlossSearchForm label
 #: signbank/dictionary/forms.py:86
@@ -656,11 +656,11 @@ msgstr "Avancerad sök"
 #. Translators: admin_gloss_list header
 #: signbank/dictionary/templates/dictionary/admin_gloss_list.html:73
 msgid "Search Glosses"
-msgstr "Sök Tecken"
+msgstr "Sök Glosor"
 
 #: signbank/dictionary/templates/dictionary/admin_gloss_list.html:87
 msgid "Gloss, Note, Translation, contains string"
-msgstr "Tecken, Notering, Översättning, innehåller sträng"
+msgstr "Glosa, Notering, Översättning, innehåller sträng"
 
 #: signbank/dictionary/templates/dictionary/admin_gloss_list.html:95
 #: signbank/dictionary/templates/dictionary/admin_gloss_list.html:103
@@ -719,7 +719,7 @@ msgstr ""
 #. Translators: Title for GlossRelation search page
 #: signbank/dictionary/templates/dictionary/admin_glossrelation_list.html:6
 msgid "Search Gloss Relations"
-msgstr "Sök tecken"
+msgstr "Sök Glosa"
 
 #. Translators: admin_gloss_list header
 #: signbank/dictionary/templates/dictionary/admin_glossrelation_list.html:60
@@ -833,11 +833,11 @@ msgstr ""
 
 #: signbank/dictionary/templates/dictionary/gloss_detail.html:315
 msgid "Gloss:"
-msgstr "Tecken"
+msgstr "Glosa"
 
 #: signbank/dictionary/templates/dictionary/gloss_detail.html:320
 msgid "Gloss in English:"
-msgstr "Engelskt tecken:"
+msgstr "Engelsk Glosa:"
 
 #: signbank/dictionary/templates/dictionary/gloss_detail.html:326
 msgid "Translations in "
@@ -1202,17 +1202,17 @@ msgstr "Inga kommentarer."
 #: signbank/dictionary/templates/dictionary/public_gloss_detail.html:83
 #: signbank/dictionary/templates/dictionary/public_translation_detail.html:80
 msgid "Relations to glosses"
-msgstr "Relationer till tecken"
+msgstr "Relationer till Glosor"
 
 #: signbank/dictionary/templates/dictionary/public_gloss_detail.html:91
 #: signbank/dictionary/templates/dictionary/public_translation_detail.html:84
 msgid "Relations from this gloss"
-msgstr "Relationer från detta tecken"
+msgstr "Relationer från denna Glosa"
 
 #: signbank/dictionary/templates/dictionary/public_gloss_detail.html:116
 #: signbank/dictionary/templates/dictionary/public_translation_detail.html:104
 msgid "Relations to this gloss"
-msgstr "Relationer till detta tecken"
+msgstr "Relationer till denna Glosa"
 
 #: signbank/dictionary/templates/dictionary/public_gloss_detail.html:148
 #: signbank/dictionary/templates/dictionary/public_translation_detail.html:130
