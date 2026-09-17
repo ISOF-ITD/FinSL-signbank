@@ -33,6 +33,20 @@ from django.views.generic.edit import FormView
 import json
 from django.http import HttpResponse
 
+# Isof AT
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.utils import OperationalError, ProgrammingError
+from signbank.dictionary.models import (
+    Gloss,
+    Dataset,
+    SignLanguage,
+    GlossRelation,
+    Translation,
+    GlossTranslations,
+    Keyword,
+    AllowedTags,
+)
 import re
 
 class TranslationServiceView(FormView):
@@ -193,6 +207,12 @@ class TranslationListPublicView(ListView):
             .annotate(first_letters=Substr(Upper('idgloss'), 1, 1)).order_by('first_letters')\
             .values_list('first_letters').distinct()
         context['lexicons'] = Dataset.objects.filter(is_public=True)
+        try:    # AT: added dynamic list of categories, based on allowed tags.
+            context["categories"] = AllowedTags.objects.get(
+                content_type=ContentType.objects.get_for_model(Gloss)
+            ).allowed_tags.all().order_by("name")
+        except (ObjectDoesNotExist, OperationalError, ProgrammingError):
+            context["categories"] = Tag.objects.all().order_by("name")
         return context
 
     def get_queryset(self):
